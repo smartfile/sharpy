@@ -50,6 +50,15 @@ Code
 You can checkout and download Sharpy's latest code at `Github
 <https://github.com/saaspire/sharpy>`_.
 
+Installing elementtree for Development and Unit Testing
+=======================================================
+When trying to install elementtree, pip may report that there is no such package. If this happens to you, you can work around by downloading and installing it manually.
+
+    wget http://effbot.org/media/downloads/elementtree-1.2.6-20050316.zip
+    unzip elementtree-1.2.6-20050316.zip
+    cd elementtree-1.2.6-20050316/
+    pip install .
+
 TODOs
 =====
 
