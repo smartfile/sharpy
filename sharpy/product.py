@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 
 from sharpy.client import Client
 from sharpy.exceptions import NotFound
-from sharpy.parsers import PlansParser, CustomersParser
+from sharpy.parsers import PlansParser, CustomersParser, PromotionsParser
 
 class CheddarProduct(object):
     
@@ -263,8 +263,42 @@ class CheddarProduct(object):
             path='customers/delete-all/confirm/%d' % int(time()),
             method='POST'
         )
-        
-        
+
+    def get_all_promotions(self):
+        '''
+        Returns all promotions.
+        https://cheddargetter.com/developers#promotions
+        '''
+        promotions = []
+
+        try:
+            response = self.client.make_request(path='promotions/get')
+        except NotFound:
+            response = None
+
+        response = self.client.make_request(path='promotions/get')
+        promotions_parser = PromotionsParser()
+        promotions_data = promotions_parser.parse_xml(response.content)
+        promotions = [Promotion(**promotion_data) for promotion_data in promotions_data]
+
+        return promotions
+
+    def get_promotion(self, code):
+        '''
+        Get the promotion with the specified coupon code.
+        https://cheddargetter.com/developers#single-promotion
+        '''
+
+        response = self.client.make_request(
+            path='promotions/get',
+            params={'code': code},
+        )
+        promotion_parser = PromotionsParser()
+        promotion_data = promotion_parser.parse_xml(response.content)
+
+        return Promotion(**promotion_data[0])
+
+
 class PricingPlan(object):
     
     def __init__(self, name, code, id, description, is_active, is_free,
@@ -576,12 +610,12 @@ class Subscription(object):
         
         super(Subscription, self).__init__()
         
-    def load_data(self, id, gateway_token, cc_first_name, cc_last_name, \
-                 cc_company, cc_country, cc_address, cc_city, cc_state, \
-                 cc_zip, cc_type, cc_last_four, cc_expiration_date, customer,\
-                 cc_email=None, canceled_datetime=None ,created_datetime=None, \
-                 plans=None, invoices=None, items=None, gateway_account=None, \
-                 cancel_reason=None, cancel_type=None, redirect_url=None):
+    def load_data(self, id, gateway_token, cc_first_name, cc_last_name,
+                  cc_company, cc_country, cc_address, cc_city, cc_state,
+                  cc_zip, cc_type, cc_last_four, cc_expiration_date, customer,
+                  cc_email=None, canceled_datetime=None ,created_datetime=None,
+                  plans=None, invoices=None, items=None, gateway_account=None,
+                  cancel_reason=None, cancel_type=None, redirect_url=None):
                  
         self.id = id
         self.gateway_token = gateway_token
@@ -764,5 +798,26 @@ class Item(object):
         )
         
         return self.subscription.customer.load_data_from_xml(response.content)
-        
-        
+
+
+class Promotion(object):
+    def __init__(self, id=None, code=None, name=None, description=None,
+                 created_datetime=None, incentives=None, coupons=None):
+
+        self.load_data(code=code, id=id, name=name, description=description,
+                       created_datetime=created_datetime,
+                       incentives=incentives, coupons=coupons)
+
+        super(Promotion, self).__init__()
+
+    def load_data(self, id=None, code=None, name=None, description=None,
+                  created_datetime=None, incentives=None, coupons=None):
+
+        self.code = code
+        self.id = id
+        self.name = name
+        self.description = description
+        self.created = created_datetime
+
+        self.incentives = incentives
+        self.coupons = coupons
