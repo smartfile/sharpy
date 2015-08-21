@@ -328,4 +328,79 @@ class CustomersParser(CheddarOutputParser):
         item['modified_datetime'] = self.parse_datetime(item_element.findtext('modifiedDatetime'))
         
         return item
+
+
+class PromotionsParser(CheddarOutputParser):
+    '''
+    A utility class for parsing cheddar's xml output for promotions.
+    '''
+    def parse_xml(self, xml_str):
+        promotions = []
+        promotions_xml = XML(xml_str)
+        for promotion_xml in promotions_xml:
+            promotion = self.parse_promotion(promotion_xml)
+            promotions.append(promotion)
         
+        return promotions
+
+    def parse_promotions(self, promotions_element):
+        promotions = []
+        
+        if promotions_element is not None:
+            for promotion_element in promotions_element:
+                promotions.append(self.parse_promotion(promotion_element))
+            
+        return promotions
+
+    def parse_promotion(self, promotion_element):
+        promotion = {}
+        import pdb; pdb.set_trace()
+        promotion['id'] = promotion_element.attrib['id']
+        promotion['name'] = promotion_element.findtext('name')
+        promotion['description'] = promotion_element.findtext('description')
+        promotion['created_datetime'] = self.parse_datetime(promotion_element.findtext('createdDatetime'))
+
+        promotion['incentives'] = self.parse_incentives(promotion_element.find('incentives'))
+        promotion['coupons'] = self.parse_coupons(promotion_element.find('coupons'))
+
+        return promotion
+
+    def parse_incentives(self, incentives_element):
+        incentives = []
+
+        if incentives_element is not None:
+            for incentive_element in incentives_element:
+                incentives.append(self.parse_incentive(incentive_element))
+
+        return incentives
+
+    def parse_incentive(self, incentive_element):
+        incentive = {}
+
+        incentive['id'] = incentive_element.attrib['id']
+        incentive['type'] = incentive_element.findtext('type')
+        incentive['percentage'] = incentive_element.findtext('percentage')
+        incentive['months'] = incentive_element.findtext('months')
+        incentive['created_datetime'] = self.parse_datetime(incentive_element.findtext('createdDatetime'))
+
+        return incentive
+
+    def parse_coupons(self, coupons_element):
+        coupons = []
+
+        if coupons_element is not None:
+            for coupon_element in coupons_element:
+                coupons.append(self.parse_coupon(coupon_element))
+
+        return coupons
+
+    def parse_coupon(self, coupon_element):
+        coupon = {}
+
+        coupon['id'] = coupon_element.attrib['id']
+        coupon['code'] = coupon_element.attrib['code']
+        coupon['max_redemptions'] = coupon_element.findtext('maxRedemptions')
+        coupon['expiration_datetime'] = self.parse_datetime(coupon_element.findtext('expirationDatetime'))
+        coupon['created_datetime'] = self.parse_datetime(coupon_element.findtext('createdDatetime'))
+
+        return coupon
