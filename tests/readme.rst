@@ -3,7 +3,9 @@ Requirements
 
 Inside a virtualenv, run:
 
-pip install -r dev-requirements.txt
+.. code::
+
+    pip install -r dev-requirements.txt
 
 Installing elementtree for Unit Testing
 =======================================================
