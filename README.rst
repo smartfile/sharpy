@@ -30,6 +30,8 @@ Getting Started
 To get started with Sharpy, simply install it like you would any other python
 package
 
+.. code::
+
     pip install sharpy
     
 Optionally, you can also install `lxml <http://codespeak.net/lxml/>`_ on your
@@ -53,6 +55,8 @@ You can checkout and download Sharpy's latest code at `Github
 Installing elementtree for Development and Unit Testing
 =======================================================
 When trying to install elementtree, pip may report that there is no such package. If this happens to you, you can work around by downloading and installing it manually.
+
+.. code::
 
     wget http://effbot.org/media/downloads/elementtree-1.2.6-20050316.zip
     unzip elementtree-1.2.6-20050316.zip
