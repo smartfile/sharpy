@@ -23,7 +23,17 @@ Config
 
 In the tests folder, copy the config.ini.template to config.ini. Fill in your email, password, and product code.
 
+
+Cheddar Setup
+=============
 You will also need to setup the correct plans in cheddar. You may want to set up a product intended just for testing.
+
+The following plan codes are required for unit tests:
+
+* FREE_MONTHLY
+* PAID_MONTHLY
+
+Be sure you turn on the native gateway credit card option.
 
 Running Tests
 =============
