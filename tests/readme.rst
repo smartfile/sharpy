@@ -46,6 +46,17 @@ The following plan codes are required for unit tests:
 | Tracked Monthly | TRACKED_MONTHLY | $10.00  | 1         | 10           |
 +-----------------+-----------------+---------+-----------+--------------+
 
+
+The following promotions are required for unit tests:
+
++----------------+---------------+--------+
+| Promotion Name | Coupon Code   | % Off  |
++================+===============+========+
+| Coupon         | COUPON        | 10     |
++----------------+---------------+--------+
+| Coupon 2       | COUPON2       | 20     |
++----------------+---------------+--------+
+
 Be sure to turn on the native gateway credit card option in Configuration > Product settings > Gateway Settings.
 
 Config
