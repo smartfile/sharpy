@@ -49,13 +49,13 @@ The following plan codes are required for unit tests:
 
 The following promotions are required for unit tests:
 
-+----------------+---------------+--------+
-| Promotion Name | Coupon Code   | % Off  |
-+================+===============+========+
-| Coupon         | COUPON        | 10     |
-+----------------+---------------+--------+
-| Coupon 2       | COUPON2       | 20     |
-+----------------+---------------+--------+
++----------------+---------------+--------+-----------+
+| Promotion Name | Coupon Code   | % Off  | Duration  |
++================+===============+========+===========+
+| Coupon         | COUPON        | 10     | Forever   |
++----------------+---------------+--------+-----------+
+| Coupon 2       | COUPON2       | 20     | Forever   |
++----------------+---------------+--------+-----------+
 
 Be sure to turn on the native gateway credit card option in Configuration > Product settings > Gateway Settings.
 
