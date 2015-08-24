@@ -354,7 +354,6 @@ class PromotionsParser(CheddarOutputParser):
 
     def parse_promotion(self, promotion_element):
         promotion = {}
-        import pdb; pdb.set_trace()
         promotion['id'] = promotion_element.attrib['id']
         promotion['name'] = promotion_element.findtext('name')
         promotion['description'] = promotion_element.findtext('description')
