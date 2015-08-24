@@ -28,6 +28,11 @@ The following plan codes are required for unit tests:
 * PAID_MONTHLY
 * TRACKED_MONTHLY
 
+The following tracked items are required for unit tests:
+
+* MONTHLY_ITEM
+* ONCE_ITEM
+
 Be sure you turn on the native gateway credit card option.
 
 Config
