@@ -22,18 +22,31 @@ CheddarGetter Setup
 =============
 You will also need to setup the correct plans in cheddar. You may want to set up a product intended just for testing.
 
-The following plan codes are required for unit tests:
 
-* FREE_MONTHLY
-* PAID_MONTHLY
-* TRACKED_MONTHLY
 
 The following tracked items are required for unit tests:
 
-* MONTHLY_ITEM
-* ONCE_ITEM
++--------------+--------------+
+| Name         | Code         |
++==============+==============+
+| Once Item    | ONCE_ITEM    |
++--------------+--------------+
+| Monthly Item | MONTHLY_ITEM |
++--------------+--------------+
 
-Be sure you turn on the native gateway credit card option.
+The following plan codes are required for unit tests:
+
++-----------------+-----------------+---------+-----------+--------------+
+| Plan Name       | Code            | Price   | ONCE_ITEM | MONTHLY_ITEM |
++=================+=================+=========+===========+==============+
+| Free Monthly    | FREE_MONTHLY    | $0.00   | 1         | 10           |
++-----------------+-----------------+---------+-----------+--------------+
+| Paid Monthly    | PAID_MONTHLY    | $10.00  | 1         | 10           |
++-----------------+-----------------+---------+-----------+--------------+
+| Tracked Monthly | TRACKED_MONTHLY | $10.00  | 1         | 10           |
++-----------------+-----------------+---------+-----------+--------------+
+
+Be sure to turn on the native gateway credit card option in Configuration > Product settings > Gateway Settings.
 
 Config
 ======
