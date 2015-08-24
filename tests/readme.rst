@@ -26,6 +26,7 @@ The following plan codes are required for unit tests:
 
 * FREE_MONTHLY
 * PAID_MONTHLY
+* TRACKED_MONTHLY
 
 Be sure you turn on the native gateway credit card option.
 
