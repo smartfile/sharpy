@@ -18,13 +18,7 @@ When trying to install elementtree, pip may report that there is no such package
     cd elementtree-1.2.6-20050316/
     pip install .
 
-Config
-======
-
-In the tests folder, copy the config.ini.template to config.ini. Fill in your email, password, and product code.
-
-
-Cheddar Setup
+CheddarGetter Setup
 =============
 You will also need to setup the correct plans in cheddar. You may want to set up a product intended just for testing.
 
@@ -34,6 +28,11 @@ The following plan codes are required for unit tests:
 * PAID_MONTHLY
 
 Be sure you turn on the native gateway credit card option.
+
+Config
+======
+
+In the tests folder, copy the config.ini.template to config.ini. Fill in your email, password, and product code.
 
 Running Tests
 =============
