@@ -276,10 +276,10 @@ class CheddarProduct(object):
         except NotFound:
             response = None
 
-        response = self.client.make_request(path='promotions/get')
-        promotions_parser = PromotionsParser()
-        promotions_data = promotions_parser.parse_xml(response.content)
-        promotions = [Promotion(**promotion_data) for promotion_data in promotions_data]
+        if response:
+            promotions_parser = PromotionsParser()
+            promotions_data = promotions_parser.parse_xml(response.content)
+            promotions = [Promotion(**promotion_data) for promotion_data in promotions_data]
 
         return promotions
 
@@ -810,6 +810,9 @@ class Promotion(object):
 
         super(Promotion, self).__init__()
 
+    def __unicode__(self):
+        return u'{0} ({1})'.format(self.name, self.code)
+
     def load_data(self, id=None, code=None, name=None, description=None,
                   created_datetime=None, incentives=None, coupons=None):
 
@@ -821,3 +824,7 @@ class Promotion(object):
 
         self.incentives = incentives
         self.coupons = coupons
+
+        # Bring coupon code up to parent promotion
+        if self.code is None and self.coupons and len(self.coupons) > 0:
+            self.code = self.coupons[0].get('code')
