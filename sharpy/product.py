@@ -810,6 +810,9 @@ class Promotion(object):
 
         super(Promotion, self).__init__()
 
+    def __repr__(self):
+        return u'Promotion: %s (%s)' % (self.name, self.code,)
+
     def __unicode__(self):
         return u'{0} ({1})'.format(self.name, self.code)
 
