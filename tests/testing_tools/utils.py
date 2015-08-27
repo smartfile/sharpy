@@ -16,5 +16,5 @@ def clear_users():
 
     response, content = h.request(url, 'POST')
 
-    if response.status != 200:
-        raise Exception('Could not clear users.  Recieved a response of %s %s ' % (response.status, response.reason))
+    if response.status != 200 or 'success' not in content:
+        raise Exception('Could not clear users. Recieved a response of %s %s \n %s' % (response.status, response.reason, content))
