@@ -16,6 +16,7 @@ from sharpy.parsers import CustomersParser
 class ParserTests(unittest.TestCase):
 
     def load_file(self, filename):
+        ''' Helper method to load an xml file from the files directory. '''
         path = os.path.join(os.path.dirname(__file__), 'files', filename)
         f = open(path)
         content = f.read()
@@ -23,6 +24,7 @@ class ParserTests(unittest.TestCase):
         return content
 
     def test_bool_parsing_true(self):
+        ''' Test boolean parsing evaluates to true. '''
         parser = CheddarOutputParser()
 
         expected = True
@@ -31,6 +33,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_bool_parsing_false(self):
+        ''' Test boolean parsing evaluates to false. '''
         parser = CheddarOutputParser()
 
         expected = False
@@ -40,11 +43,13 @@ class ParserTests(unittest.TestCase):
 
     @raises(ParseError)
     def test_bool_parsing_error(self):
+        ''' Test boolean parsing with non-boolean string. '''
         parser = CheddarOutputParser()
 
         parser.parse_bool('test')
 
     def test_bool_parsing_empty(self):
+        ''' Test boolean parsing with empty string. '''
         parser = CheddarOutputParser()
 
         expected = None
@@ -53,6 +58,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_int_parsing(self):
+        ''' Test integer parsing with integer as string. '''
         parser = CheddarOutputParser()
 
         expected = 234
@@ -62,11 +68,13 @@ class ParserTests(unittest.TestCase):
 
     @raises(ParseError)
     def test_int_parsing_error(self):
+        ''' Test integer parsing with non-integer string. '''
         parser = CheddarOutputParser()
 
         parser.parse_int('test')
 
     def test_int_parsing_empty(self):
+        ''' Test integer parsing with empty string. '''
         parser = CheddarOutputParser()
 
         expected = None
@@ -75,6 +83,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_decimal_parsing(self):
+        ''' Test decimal parsing with decimal string. '''
         parser = CheddarOutputParser()
 
         expected = Decimal('2.345')
@@ -84,11 +93,13 @@ class ParserTests(unittest.TestCase):
 
     @raises(ParseError)
     def test_decimal_parsing_error(self):
+        ''' Test decimal parsing with non-decimal string. '''
         parser = CheddarOutputParser()
 
         parser.parse_decimal('test')
 
     def test_decimal_parsing_empty(self):
+        ''' Test decimal parsing with empty string. '''
         parser = CheddarOutputParser()
 
         expected = None
@@ -97,6 +108,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_datetime_parsing(self):
+        ''' Test datetime parsing. '''
         parser = CheddarOutputParser()
 
         expected = datetime(
@@ -114,11 +126,13 @@ class ParserTests(unittest.TestCase):
 
     @raises(ParseError)
     def test_datetime_parsing_error(self):
+        ''' Test datetime parsing with non-date string. '''
         parser = CheddarOutputParser()
 
         parser.parse_datetime('test')
 
     def test_datetime_parsing_empty(self):
+        ''' Test datetime parsing with empty string. '''
         parser = CheddarOutputParser()
 
         expected = None
@@ -127,6 +141,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_error_parser(self):
+        ''' Test error parser. '''
         error_xml = self.load_file('error.xml')
 
         expected = {
@@ -140,6 +155,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_plans_parser(self):
+        ''' Test plans parser. '''
         plans_xml = self.load_file('plans.xml')
         parser = PlansParser()
 
@@ -193,6 +209,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_plans_parser_with_items(self):
+        ''' Test plans parser with items. '''
         plans_xml = self.load_file('plans_with_items.xml')
         parser = PlansParser()
 
@@ -322,6 +339,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_customers_parser_with_no_items(self):
+        ''' Test customers parser with no items. '''
         customers_xml = self.load_file('customers-without-items.xml')
         parser = CustomersParser()
 
@@ -443,6 +461,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_customers_parser_with_items(self):
+        ''' Test customers parser with items. '''
         customers_xml = self.load_file('customers-with-items.xml')
         parser = CustomersParser()
 
@@ -606,6 +625,7 @@ class ParserTests(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_paypal_customer_parse(self):
+        ''' Test customer parser with paypal customer. '''
         customers_xml = self.load_file('paypal_customer.xml')
         parser = CustomersParser()
 
