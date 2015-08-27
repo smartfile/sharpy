@@ -1,3 +1,6 @@
+import random
+import string
+
 from copy import copy
 from datetime import date, datetime, timedelta
 from decimal import Decimal
@@ -116,6 +119,13 @@ class ProductTests(unittest.TestCase):
         
     def get_customer(self, **kwargs):
         customer_data = copy(self.customer_defaults)
+        # We need to make unique customers with the same data.
+        # Cheddar recomends we pass a garbage field.
+        # http://support.cheddargetter.com/discussions/problems/8342-duplicate-post
+        # http://support.cheddargetter.com/kb/api-8/error-handling#duplicate
+        random_string = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits) for _ in range(5))
+        customer_data.update({'notes': random_string})
         customer_data.update(kwargs)
         product = self.get_product()
         
@@ -138,72 +148,58 @@ class ProductTests(unittest.TestCase):
         
         return customer
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_simple_create_customer(self):
         self.get_customer()
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_company(self):
         self.get_customer(company='Test Co')
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_meta_data(self):
         self.get_customer(meta_data = {'key_1': 'value_1', 'key2': 'value_2'})
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_true_vat_exempt(self):
         self.get_customer(is_vat_exempt=True)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_false_vat_exempt(self):
         self.get_customer(is_vat_exempt=False)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_vat_number(self):
         self.get_customer(vat_number=12345)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_notes(self):
         self.get_customer(notes='This is a test note!')
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_first_contact_datetime(self):
         self.get_customer(first_contact_datetime=datetime.now())
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_referer(self):
         self.get_customer(referer='http://saaspire.com/test.html')
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_campaign_term(self):
         self.get_customer(campaign_term='testing')
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_campaign_name(self):
         self.get_customer(campaign_name='testing')
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_campaign_source(self):
         self.get_customer(campaign_source='testing')
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_campaign_content(self):
         self.get_customer(campaign_content='testing')
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_customer_with_initial_bill_date(self):
         initial_bill_date = datetime.utcnow() + timedelta(days=60)
@@ -216,12 +212,10 @@ class ProductTests(unittest.TestCase):
         diff = initial_bill_date.date() - real_bill_date.date()
         self.assertLessEqual(diff.days, 1)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_paid_customer(self):
         self.get_customer(**self.paid_defaults)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_paid_customer_with_charges(self):
         data = copy(self.paid_defaults)
@@ -231,7 +225,6 @@ class ProductTests(unittest.TestCase):
         data['charges'] = charges
         self.get_customer(**data)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_paid_customer_with_decimal_charges(self):
         data = copy(self.paid_defaults)
@@ -241,7 +234,6 @@ class ProductTests(unittest.TestCase):
         data['charges'] = charges
         self.get_customer(**data)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_paid_customer_with_items(self):
         data = copy(self.paid_defaults)
@@ -252,7 +244,6 @@ class ProductTests(unittest.TestCase):
         data['plan_code'] = 'TRACKED_MONTHLY'
         self.get_customer(**data)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_paid_customer_with_decimal_quantity_items(self):
         data = copy(self.paid_defaults)
@@ -263,13 +254,11 @@ class ProductTests(unittest.TestCase):
         data['plan_code'] = 'TRACKED_MONTHLY'
         self.get_customer(**data)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_create_paypal_customer(self):
         data = copy(self.paypal_defaults)
         self.get_customer(**data)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_update_paypal_customer(self):
         data = copy(self.paypal_defaults)
@@ -280,7 +269,6 @@ class ProductTests(unittest.TestCase):
             cancel_url='http://example.com/update-cancel/',
         )
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_customer_repr(self):
         customer = self.get_customer()
@@ -290,7 +278,6 @@ class ProductTests(unittest.TestCase):
 
         self.assertEquals(expected, result)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_subscription_repr(self):
         customer = self.get_customer()
@@ -301,7 +288,6 @@ class ProductTests(unittest.TestCase):
         
         self.assertIn(expected, result)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_pricing_plan_repr(self):
         customer = self.get_customer()
@@ -313,7 +299,6 @@ class ProductTests(unittest.TestCase):
         
         self.assertEquals(expected, result)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_item_repr(self):
         customer = self.get_customer_with_items()
@@ -325,7 +310,6 @@ class ProductTests(unittest.TestCase):
         
         self.assertEquals(expected, result)
 
-    @unittest.skip('Duplicate transaction error. 6 seconds.')
     @clear_users
     def test_get_customers(self):
         customer1 = self.get_customer()
@@ -340,10 +324,8 @@ class ProductTests(unittest.TestCase):
         product = self.get_product()
         
         fetched_customers = product.get_customers()
-        
         self.assertEquals(2, len(fetched_customers))
 
-    @unittest.skip('Duplicate transaction error. 6 seconds.')
     @clear_users
     def test_get_customer(self):
         created_customer = self.get_customer()
@@ -356,7 +338,6 @@ class ProductTests(unittest.TestCase):
         self.assertEquals(created_customer.last_name, fetched_customer.last_name)
         self.assertEquals(created_customer.email, fetched_customer.email)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_simple_customer_update(self):
         new_name = 'Different'
@@ -369,7 +350,6 @@ class ProductTests(unittest.TestCase):
         fetched_customer = product.get_customer(code=customer.code)
         self.assertEquals(customer.first_name, fetched_customer.first_name)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     @raises(NotFound)
     def test_delete_customer(self):
@@ -382,7 +362,7 @@ class ProductTests(unittest.TestCase):
         customer.delete()
         fetched_customer = product.get_customer(code=customer.code)
 
-    @unittest.skip('Skip until deleting customers is working')
+
     @clear_users
     def test_delete_all_customers(self):
         customer_1 = self.get_customer()
@@ -397,7 +377,6 @@ class ProductTests(unittest.TestCase):
         fetched_customers = product.get_customers()
         self.assertEquals(0, len(fetched_customers))
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_cancel_subscription(self):
         customer = self.get_customer()
@@ -426,22 +405,18 @@ class ProductTests(unittest.TestCase):
         fetched_item = customer.subscription.items[item.code]
         self.assertEquals(item.quantity_used, fetched_item.quantity_used)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_simple_increment(self):
         self.assert_increment()
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_int_increment(self):
         self.assert_increment(1)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_float_increment(self):
         self.assert_increment(1.234)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_decimal_increment(self):
         self.assert_increment(Decimal('1.234'))
@@ -462,22 +437,18 @@ class ProductTests(unittest.TestCase):
         fetched_item = customer.subscription.items[item.code]
         self.assertEquals(item.quantity_used, fetched_item.quantity_used)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_simple_decrement(self):
         self.assert_decrement()
 
-    @unittest.skip('Duplicate transaction error. 6 seconds.')
     @clear_users
     def test_int_decrement(self):
         self.assert_decrement(1)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_float_decrement(self):
         self.assert_decrement(1.234)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_decimal_decrement(self):
         self.assert_decrement(Decimal('1.234'))
@@ -497,17 +468,14 @@ class ProductTests(unittest.TestCase):
         fetched_item = customer.subscription.items[item.code]
         self.assertEquals(item.quantity_used, fetched_item.quantity_used)
 
-    @unittest.skip('Duplicate transaction error. 6 seconds.')
     @clear_users
     def test_int_set(self):
         self.assert_set(1)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_float_set(self):
         self.assert_set(1.234)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_decimal_set(self):
         self.assert_set(Decimal('1.234'))
@@ -548,27 +516,22 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(quantity, fetched_charge['quantity'])
         self.assertEqual(description, fetched_charge['description'])
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_add_charge(self):
         self.assert_charged(code='TEST-CHARGE', each_amount=1, quantity=1)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_add_float_charge(self):
         self.assert_charged(code='TEST-CHARGE', each_amount=2.3, quantity=2)
-        
-    @unittest.skip('Skip until deleting customers is working')
+
     @clear_users
     def test_add_decimal_charge(self):
         self.assert_charged(code='TEST-CHARGE', each_amount=Decimal('2.3'), quantity=3)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_add_charge_with_descriptions(self):
         self.assert_charged(code='TEST-CHARGE', each_amount=1, quantity=1, description="A test charge")
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_add_credit(self):
         self.assert_charged(code='TEST-CHARGE', each_amount=-1, quantity=1)
@@ -613,7 +576,6 @@ class ProductTests(unittest.TestCase):
                 invoice_type = 'one-time',
             )
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_add_simple_one_time_invoice(self):
         charges = [{
@@ -624,7 +586,6 @@ class ProductTests(unittest.TestCase):
 
         self.assertOneTimeInvoice(charges)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_add_one_time_invoice_with_description(self):
         charges = [{
@@ -636,7 +597,6 @@ class ProductTests(unittest.TestCase):
 
         self.assertOneTimeInvoice(charges)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_add_one_time_invoice_with_multiple_charges(self):
         charges = [{
@@ -673,3 +633,23 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(promotion.coupons[0].get('code'), 'COUPON')
         self.assertEqual(promotion.incentives[0].get('percentage'), '10')
         self.assertEqual(promotion.incentives[0].get('expiration_datetime'), None)
+
+    def test_promotion_repr(self):
+        ''' Test the internal __repr___ method of Promotion. '''
+        product = self.get_product()
+        promotion = product.get_promotion('COUPON')
+
+        expected = 'Promotion: Coupon (COUPON)'
+        result = repr(promotion)
+        
+        self.assertEquals(expected, result)
+
+    def test_promotion_unicode(self):
+        ''' Test the internal __unicode___ method of Promotion. '''
+        product = self.get_product()
+        promotion = product.get_promotion('COUPON')
+
+        expected = 'Coupon (COUPON)'
+        result = unicode(promotion)
+        
+        self.assertEquals(expected, result)
