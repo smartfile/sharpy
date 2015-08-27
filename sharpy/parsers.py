@@ -1,4 +1,3 @@
-from datetime import datetime, date
 from decimal import Decimal, InvalidOperation
 import logging
 
@@ -8,10 +7,11 @@ try:
     from lxml.etree import XML
 except ImportError:
     from elementtree.ElementTree import XML
-    
+
 from sharpy.exceptions import ParseError
 
 client_log = logging.getLogger('SharpyClient')
+
 
 def parse_error(xml_str):
     error = {}
@@ -27,9 +27,9 @@ def parse_error(xml_str):
     error['code'] = elem.attrib['code']
     error['aux_code'] = elem.attrib['auxCode']
     error['message'] = elem.text
-    
+
     return error
-    
+
 
 class CheddarOutputParser(object):
     '''
@@ -45,9 +45,9 @@ class CheddarOutputParser(object):
             value = False
         else:
             raise ParseError("Can't parse '%s' as a bool." % content)
-        
+
         return value
-        
+
     def parse_int(self, content):
         value = None
         if content != '' and content is not None:
@@ -55,9 +55,9 @@ class CheddarOutputParser(object):
                 value = int(content)
             except ValueError:
                 raise ParseError("Can't parse '%s' as an int." % content)
-            
+
         return value
-        
+
     def parse_decimal(self, content):
         value = None
         if content != '' and content is not None:
@@ -65,9 +65,9 @@ class CheddarOutputParser(object):
                 value = Decimal(content)
             except InvalidOperation:
                 raise ParseError("Can't parse '%s' as a decimal." % content)
-            
+
         return value
-        
+
     def parse_datetime(self, content):
         value = None
         if content:
@@ -75,10 +75,10 @@ class CheddarOutputParser(object):
                 value = date_parser.parse(content)
             except ValueError:
                 raise ParseError("Can't parse '%s' as a datetime." % content)
-            
-            
+
         return value
-        
+
+
 class PlansParser(CheddarOutputParser):
     '''
     A utility class for parsing cheddar's xml output for pricing plans.
@@ -89,9 +89,9 @@ class PlansParser(CheddarOutputParser):
         for plan_xml in plans_xml:
             plan = self.parse_plan(plan_xml)
             plans.append(plan)
-        
+
         return plans
-        
+
     def parse_plan(self, plan_element):
         plan = {}
         plan['id'] = plan_element.attrib['id']
@@ -101,45 +101,58 @@ class PlansParser(CheddarOutputParser):
         plan['is_active'] = self.parse_bool(plan_element.findtext('isActive'))
         plan['is_free'] = self.parse_bool(plan_element.findtext('isFree'))
         plan['trial_days'] = self.parse_int(plan_element.findtext('trialDays'))
-        plan['initial_bill_count'] = self.parse_int(plan_element.findtext('initialBillCount'))
-        plan['initial_bill_count_unit'] = plan_element.findtext('initialBillCountUnit')
+        plan['initial_bill_count'] = self.parse_int(plan_element.findtext(
+            'initialBillCount'))
+        plan['initial_bill_count_unit'] = plan_element.findtext(
+            'initialBillCountUnit')
         plan['billing_frequency'] = plan_element.findtext('billingFrequency')
-        plan['billing_frequency_per'] = plan_element.findtext('billingFrequencyPer')
-        plan['billing_frequency_unit'] = plan_element.findtext('billingFrequencyUnit')
-        plan['billing_frequency_quantity'] = self.parse_int(plan_element.findtext('billingFrequencyQuantity'))
+        plan['billing_frequency_per'] = plan_element.findtext(
+            'billingFrequencyPer')
+        plan['billing_frequency_unit'] = plan_element.findtext(
+            'billingFrequencyUnit')
+        plan['billing_frequency_quantity'] = self.parse_int(
+            plan_element.findtext('billingFrequencyQuantity'))
         plan['setup_charge_code'] = plan_element.findtext('setupChargeCode')
-        plan['setup_charge_amount'] = self.parse_decimal(plan_element.findtext('setupChargeAmount'))
-        plan['recurring_charge_code'] = plan_element.findtext('recurringChargeCode')
-        plan['recurring_charge_amount'] = self.parse_decimal(plan_element.findtext('recurringChargeAmount'))
-        plan['created_datetime'] = self.parse_datetime(plan_element.findtext('createdDatetime'))
-        
+        plan['setup_charge_amount'] = self.parse_decimal(
+            plan_element.findtext('setupChargeAmount'))
+        plan['recurring_charge_code'] = plan_element.findtext(
+            'recurringChargeCode')
+        plan['recurring_charge_amount'] = self.parse_decimal(
+            plan_element.findtext('recurringChargeAmount'))
+        plan['created_datetime'] = self.parse_datetime(
+            plan_element.findtext('createdDatetime'))
+
         plan['items'] = self.parse_plan_items(plan_element.find('items'))
-        
+
         return plan
-        
+
     def parse_plan_items(self, items_element):
         items = []
-        
+
         if items_element is not None:
             for item_element in items_element:
                 items.append(self.parse_plan_item(item_element))
-        
+
         return items
-    
+
     def parse_plan_item(self, item_element):
         item = {}
-        
+
         item['id'] = item_element.attrib['id']
         item['code'] = item_element.attrib['code']
         item['name'] = item_element.findtext('name')
-        item['quantity_included'] = self.parse_decimal(item_element.findtext('quantityIncluded'))
-        item['is_periodic'] = self.parse_bool(item_element.findtext('isPeriodic'))
-        item['overage_amount'] = self.parse_decimal(item_element.findtext('overageAmount'))
-        item['created_datetime'] = self.parse_datetime(item_element.findtext('createdDatetime'))
-        
+        item['quantity_included'] = self.parse_decimal(
+            item_element.findtext('quantityIncluded'))
+        item['is_periodic'] = self.parse_bool(
+            item_element.findtext('isPeriodic'))
+        item['overage_amount'] = self.parse_decimal(
+            item_element.findtext('overageAmount'))
+        item['created_datetime'] = self.parse_datetime(
+            item_element.findtext('createdDatetime'))
+
         return item
-        
-        
+
+
 class CustomersParser(CheddarOutputParser):
     '''
     Utility class for parsing cheddar's xml output for customers.
@@ -150,12 +163,12 @@ class CustomersParser(CheddarOutputParser):
         for customer_xml in customers_xml:
             customer = self.parse_customer(customer_xml)
             customers.append(customer)
-            
+
         return customers
-    
+
     def parse_customer(self, customer_element):
         customer = {}
-        
+
         # Basic info
         customer['id'] = customer_element.attrib['id']
         customer['code'] = customer_element.attrib['code']
@@ -167,60 +180,72 @@ class CustomersParser(CheddarOutputParser):
         customer['gateway_token'] = customer_element.findtext('gateway_token')
         customer['is_vat_exempt'] = customer_element.findtext('isVatExempt')
         customer['vat_number'] = customer_element.findtext('vatNumber')
-        customer['first_contact_datetime'] = self.parse_datetime(customer_element.findtext('firstContactDatetime'))
+        customer['first_contact_datetime'] = self.parse_datetime(
+            customer_element.findtext('firstContactDatetime'))
         customer['referer'] = customer_element.findtext('referer')
         customer['referer_host'] = customer_element.findtext('refererHost')
-        customer['campaign_source'] = customer_element.findtext('campaignSource')
-        customer['campaign_medium'] = customer_element.findtext('campaignMedium')
+        customer['campaign_source'] = customer_element.findtext(
+            'campaignSource')
+        customer['campaign_medium'] = customer_element.findtext(
+            'campaignMedium')
         customer['campaign_term'] = customer_element.findtext('campaignTerm')
-        customer['campaign_content'] = customer_element.findtext('campaignContent')
+        customer['campaign_content'] = customer_element.findtext(
+            'campaignContent')
         customer['campaign_name'] = customer_element.findtext('campaignName')
-        customer['created_datetime'] = self.parse_datetime(customer_element.findtext('createdDatetime'))
-        customer['modified_datetime'] = self.parse_datetime(customer_element.findtext('modifiedDatetime'))
-        
+        customer['created_datetime'] = self.parse_datetime(
+            customer_element.findtext('createdDatetime'))
+        customer['modified_datetime'] = self.parse_datetime(
+            customer_element.findtext('modifiedDatetime'))
+
         # Metadata
-        customer['meta_data'] = self.parse_meta_data(customer_element.find('metaData'))
-        
+        customer['meta_data'] = self.parse_meta_data(
+            customer_element.find('metaData'))
+
         # Subscriptions
-        customer['subscriptions'] = self.parse_subscriptions(customer_element.find('subscriptions'))
-        
+        customer['subscriptions'] = self.parse_subscriptions(
+            customer_element.find('subscriptions'))
+
         return customer
-    
+
     def parse_meta_data(self, meta_data_element):
         meta_data = []
         for meta_datum_element in meta_data_element:
             meta_data.append(self.parse_meta_datum(meta_datum_element))
-        
+
         return meta_data
-    
+
     def parse_meta_datum(self, meta_datum_element):
         meta_datum = {}
-        
+
         meta_datum['id'] = meta_datum_element.attrib['id']
         meta_datum['name'] = meta_datum_element.findtext('name')
         meta_datum['value'] = meta_datum_element.findtext('value')
-        meta_datum['created_datetime'] = self.parse_datetime(meta_datum_element.findtext('createdDatetime'))
-        meta_datum['modified_datetime'] = self.parse_datetime(meta_datum_element.findtext('modifiedDatetime'))
-        
+        meta_datum['created_datetime'] = self.parse_datetime(
+            meta_datum_element.findtext('createdDatetime'))
+        meta_datum['modified_datetime'] = self.parse_datetime(
+            meta_datum_element.findtext('modifiedDatetime'))
+
         return meta_datum
-        
-        
+
     def parse_subscriptions(self, subscriptions_element):
         subscriptions = []
         for subscription_element in subscriptions_element:
             subscription = self.parse_subscription(subscription_element)
             subscriptions.append(subscription)
-            
+
         return subscriptions
-        
+
     def parse_subscription(self, subscription_element):
         subscription = {}
-        
+
         # Basic info
         subscription['id'] = subscription_element.attrib['id']
-        subscription['gateway_token'] = subscription_element.findtext('gatewayToken')
-        subscription['cc_first_name'] = subscription_element.findtext('ccFirstName')
-        subscription['cc_last_name'] = subscription_element.findtext('ccLastName')
+        subscription['gateway_token'] = subscription_element.findtext(
+            'gatewayToken')
+        subscription['cc_first_name'] = subscription_element.findtext(
+            'ccFirstName')
+        subscription['cc_last_name'] = subscription_element.findtext(
+            'ccLastName')
         subscription['cc_company'] = subscription_element.findtext('ccCompany')
         subscription['cc_country'] = subscription_element.findtext('ccCountry')
         subscription['cc_address'] = subscription_element.findtext('ccAddress')
@@ -229,12 +254,18 @@ class CustomersParser(CheddarOutputParser):
         subscription['cc_zip'] = subscription_element.findtext('ccZip')
         subscription['cc_type'] = subscription_element.findtext('ccType')
         subscription['cc_email'] = subscription_element.findtext('ccEmail')
-        subscription['cc_last_four'] = subscription_element.findtext('ccLastFour')
-        subscription['cc_expiration_date'] = subscription_element.findtext('ccExpirationDate')
-        subscription['cancel_type'] = subscription_element.findtext('cancelType')
-        subscription['cancel_reason'] = subscription_element.findtext('cancelReason')
-        subscription['canceled_datetime'] = self.parse_datetime(subscription_element.findtext('canceledDatetime'))
-        subscription['created_datetime'] = self.parse_datetime(subscription_element.findtext('createdDatetime'))
+        subscription['cc_last_four'] = subscription_element.findtext(
+            'ccLastFour')
+        subscription['cc_expiration_date'] = subscription_element.findtext(
+            'ccExpirationDate')
+        subscription['cancel_type'] = subscription_element.findtext(
+            'cancelType')
+        subscription['cancel_reason'] = subscription_element.findtext(
+            'cancelReason')
+        subscription['canceled_datetime'] = self.parse_datetime(
+            subscription_element.findtext('canceledDatetime'))
+        subscription['created_datetime'] = self.parse_datetime(
+            subscription_element.findtext('createdDatetime'))
         gateway_account_element = subscription_element.find('gatewayAccount')
         if gateway_account_element is not None:
             subscription['gateway_account'] = {
@@ -242,91 +273,105 @@ class CustomersParser(CheddarOutputParser):
                 'gateway': gateway_account_element.findtext('gateway'),
                 'type': gateway_account_element.findtext('type')
             }
-        subscription['redirect_url'] = subscription_element.findtext('redirectUrl')
-        
+        subscription['redirect_url'] = subscription_element.findtext(
+            'redirectUrl')
+
         # Plans
-        subscription['plans'] = self.parse_plans(subscription_element.find('plans'))
-        
+        subscription['plans'] = self.parse_plans(
+            subscription_element.find('plans'))
+
         # Invoices
-        subscription['invoices'] = self.parse_invoices(subscription_element.find('invoices'))
-        
-        subscription['items'] = self.parse_subscription_items(subscription_element.find('items'))
-        
+        subscription['invoices'] = self.parse_invoices(
+            subscription_element.find('invoices'))
+
+        subscription['items'] = self.parse_subscription_items(
+            subscription_element.find('items'))
+
         return subscription
-        
+
     def parse_plans(self, plans_element):
         plans_parser = PlansParser()
         plans = []
-        
+
         if plans_element is not None:
             for plan_element in plans_element:
                 plans.append(plans_parser.parse_plan(plan_element))
-            
+
         return plans
-        
+
     def parse_invoices(self, invoices_element):
         invoices = []
         if invoices_element is not None:
             for invoice_element in invoices_element:
                 invoices.append(self.parse_invoice(invoice_element))
-            
+
         return invoices
-    
+
     def parse_invoice(self, invoice_element):
         invoice = {}
-        
+
         invoice['id'] = invoice_element.attrib['id']
         invoice['number'] = invoice_element.findtext('number')
         invoice['type'] = invoice_element.findtext('type')
         invoice['vat_rate'] = invoice_element.findtext('vatRate')
-        invoice['billing_datetime'] = self.parse_datetime(invoice_element.findtext('billingDatetime'))
-        invoice['paid_transaction_id'] = invoice_element.findtext('paidTransactionId')
-        invoice['created_datetime'] = self.parse_datetime(invoice_element.findtext('createdDatetime'))
-        
-        invoice['charges'] = self.parse_charges(invoice_element.find('charges'))
-        
+        invoice['billing_datetime'] = self.parse_datetime(
+            invoice_element.findtext('billingDatetime'))
+        invoice['paid_transaction_id'] = invoice_element.findtext(
+            'paidTransactionId')
+        invoice['created_datetime'] = self.parse_datetime(
+            invoice_element.findtext('createdDatetime'))
+
+        invoice['charges'] = self.parse_charges(
+            invoice_element.find('charges'))
+
         return invoice
-        
+
     def parse_charges(self, charges_element):
         charges = []
-        
+
         for charge_element in charges_element:
             charges.append(self.parse_charge(charge_element))
-        
+
         return charges
-        
+
     def parse_charge(self, charge_element):
         charge = {}
-        
+
         charge['id'] = charge_element.attrib['id']
         charge['code'] = charge_element.attrib['code']
         charge['type'] = charge_element.findtext('type')
-        charge['quantity'] = self.parse_decimal(charge_element.findtext('quantity'))
-        charge['each_amount'] = self.parse_decimal(charge_element.findtext('eachAmount'))
+        charge['quantity'] = self.parse_decimal(
+            charge_element.findtext('quantity'))
+        charge['each_amount'] = self.parse_decimal(
+            charge_element.findtext('eachAmount'))
         charge['description'] = charge_element.findtext('description')
-        charge['created_datetime'] = self.parse_datetime(charge_element.findtext('createdDatetime'))
-        
+        charge['created_datetime'] = self.parse_datetime(
+            charge_element.findtext('createdDatetime'))
+
         return charge
-        
+
     def parse_subscription_items(self, items_element):
         items = []
-        
+
         if items_element is not None:
             for item_element in items_element:
                 items.append(self.parse_subscription_item(item_element))
-            
+
         return items
-        
+
     def parse_subscription_item(self, item_element):
         item = {}
 
         item['id'] = item_element.attrib['id']
         item['code'] = item_element.attrib['code']
         item['name'] = item_element.findtext('name')
-        item['quantity'] = self.parse_decimal(item_element.findtext('quantity'))
-        item['created_datetime'] = self.parse_datetime(item_element.findtext('createdDatetime'))
-        item['modified_datetime'] = self.parse_datetime(item_element.findtext('modifiedDatetime'))
-        
+        item['quantity'] = self.parse_decimal(
+            item_element.findtext('quantity'))
+        item['created_datetime'] = self.parse_datetime(
+            item_element.findtext('createdDatetime'))
+        item['modified_datetime'] = self.parse_datetime(
+            item_element.findtext('modifiedDatetime'))
+
         return item
 
 
@@ -348,10 +393,13 @@ class PromotionsParser(CheddarOutputParser):
         promotion['id'] = promotion_element.attrib['id']
         promotion['name'] = promotion_element.findtext('name')
         promotion['description'] = promotion_element.findtext('description')
-        promotion['created_datetime'] = self.parse_datetime(promotion_element.findtext('createdDatetime'))
+        promotion['created_datetime'] = self.parse_datetime(
+            promotion_element.findtext('createdDatetime'))
 
-        promotion['incentives'] = self.parse_incentives(promotion_element.find('incentives'))
-        promotion['coupons'] = self.parse_coupons(promotion_element.find('coupons'))
+        promotion['incentives'] = self.parse_incentives(
+            promotion_element.find('incentives'))
+        promotion['coupons'] = self.parse_coupons(
+            promotion_element.find('coupons'))
 
         return promotion
 
@@ -371,7 +419,8 @@ class PromotionsParser(CheddarOutputParser):
         incentive['type'] = incentive_element.findtext('type')
         incentive['percentage'] = incentive_element.findtext('percentage')
         incentive['months'] = incentive_element.findtext('months')
-        incentive['created_datetime'] = self.parse_datetime(incentive_element.findtext('createdDatetime'))
+        incentive['created_datetime'] = self.parse_datetime(
+            incentive_element.findtext('createdDatetime'))
 
         return incentive
 
@@ -390,7 +439,9 @@ class PromotionsParser(CheddarOutputParser):
         coupon['id'] = coupon_element.attrib['id']
         coupon['code'] = coupon_element.attrib['code']
         coupon['max_redemptions'] = coupon_element.findtext('maxRedemptions')
-        coupon['expiration_datetime'] = self.parse_datetime(coupon_element.findtext('expirationDatetime'))
-        coupon['created_datetime'] = self.parse_datetime(coupon_element.findtext('createdDatetime'))
+        coupon['expiration_datetime'] = self.parse_datetime(
+            coupon_element.findtext('expirationDatetime'))
+        coupon['created_datetime'] = self.parse_datetime(
+            coupon_element.findtext('createdDatetime'))
 
         return coupon

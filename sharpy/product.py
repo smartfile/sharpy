@@ -1,6 +1,6 @@
 from copy import copy
-from datetime import date, datetime
-from decimal import Decimal, getcontext as get_decimal_context
+from datetime import datetime
+from decimal import Decimal
 from time import time
 
 from dateutil.relativedelta import relativedelta
@@ -9,9 +9,11 @@ from sharpy.client import Client
 from sharpy.exceptions import NotFound
 from sharpy.parsers import PlansParser, CustomersParser, PromotionsParser
 
+
 class CheddarProduct(object):
-    
-    def __init__(self, username, password, product_code, cache=None, timeout=None, endpoint=None):
+
+    def __init__(self, username, password, product_code, cache=None,
+                 timeout=None, endpoint=None):
         self.product_code = product_code
         self.client = Client(
             username,
@@ -21,20 +23,20 @@ class CheddarProduct(object):
             timeout,
             endpoint,
         )
-        
+
         super(CheddarProduct, self).__init__()
-        
+
     def __repr__(self):
         return u'CheddarProduct: %s' % self.product_code
-        
+
     def get_all_plans(self):
         response = self.client.make_request(path='plans/get')
         plans_parser = PlansParser()
         plans_data = plans_parser.parse_xml(response.content)
         plans = [PricingPlan(**plan_data) for plan_data in plans_data]
-        
+
         return plans
-        
+
     def get_plan(self, code):
         response = self.client.make_request(
             path='plans/get',
@@ -43,83 +45,93 @@ class CheddarProduct(object):
         plans_parser = PlansParser()
         plans_data = plans_parser.parse_xml(response.content)
         plans = [PricingPlan(**plan_data) for plan_data in plans_data]
-        
+
         return plans[0]
-        
-    def create_customer(self, code, first_name, last_name, email, plan_code, \
-                        company=None, is_vat_exempt=None, vat_number=None, \
-                        notes=None, first_contact_datetime=None, \
-                        referer=None, campaign_term=None, \
-                        campaign_name=None, campaign_source=None, \
-                        campaign_medium=None, campaign_content=None, \
-                        meta_data=None, initial_bill_date=None, method=None,\
-                        cc_number=None, cc_expiration=None, \
-                        cc_card_code=None, cc_first_name=None, \
-                        cc_last_name=None, cc_email=None, cc_company=None, \
-                        cc_country=None, cc_address=None, cc_city=None, \
-                        cc_state=None, cc_zip=None, return_url=None, \
+
+    def create_customer(self, code, first_name, last_name, email, plan_code,
+                        company=None, is_vat_exempt=None, vat_number=None,
+                        notes=None, first_contact_datetime=None,
+                        referer=None, campaign_term=None,
+                        campaign_name=None, campaign_source=None,
+                        campaign_medium=None, campaign_content=None,
+                        meta_data=None, initial_bill_date=None, method=None,
+                        cc_number=None, cc_expiration=None,
+                        cc_card_code=None, cc_first_name=None,
+                        cc_last_name=None, cc_email=None, cc_company=None,
+                        cc_country=None, cc_address=None, cc_city=None,
+                        cc_state=None, cc_zip=None, return_url=None,
                         cancel_url=None, charges=None, items=None):
 
-        data = self.build_customer_post_data(code, first_name, last_name, \
-                    email, plan_code, company, is_vat_exempt, vat_number, \
-                    notes, first_contact_datetime, referer, campaign_term, \
-                    campaign_name, campaign_source, campaign_medium, \
-                    campaign_content, meta_data, initial_bill_date, method, \
-                    cc_number, cc_expiration, cc_card_code, cc_first_name, \
-                    cc_last_name, cc_email, cc_company, cc_country, cc_address, \
-                    cc_city, cc_state, cc_zip, return_url, cancel_url)
-        
+        data = self.build_customer_post_data(code, first_name, last_name,
+                                             email, plan_code, company,
+                                             is_vat_exempt, vat_number,
+                                             notes, first_contact_datetime,
+                                             referer, campaign_term,
+                                             campaign_name, campaign_source,
+                                             campaign_medium, campaign_content,
+                                             meta_data, initial_bill_date,
+                                             method, cc_number, cc_expiration,
+                                             cc_card_code, cc_first_name,
+                                             cc_last_name, cc_email,
+                                             cc_company, cc_country,
+                                             cc_address, cc_city, cc_state,
+                                             cc_zip, return_url, cancel_url)
+
         if charges:
             for i, charge in enumerate(charges):
                 data['charges[%d][chargeCode]' % i] = charge['code']
                 data['charges[%d][quantity]' % i] = charge.get('quantity', 1)
-                data['charges[%d][eachAmount]' % i] = '%.2f' % charge['each_amount']
-                data['charges[%d][description]' % i] = charge.get('description', '')
+                data['charges[%d][eachAmount]' % i] = '%.2f' % (
+                    charge['each_amount'])
+                data['charges[%d][description]' % i] = charge.get(
+                    'description', '')
 
         if items:
             for i, item in enumerate(items):
                 data['items[%d][itemCode]' % i] = item['code']
                 data['items[%d][quantity]' % i] = item.get('quantity', 1)
-        
+
         response = self.client.make_request(path='customers/new', data=data)
         customer_parser = CustomersParser()
         customers_data = customer_parser.parse_xml(response.content)
         customer = Customer(product=self, **customers_data[0])
-        
+
         return customer
-        
-    def build_customer_post_data(self, code=None, first_name=None,\
-                last_name=None, email=None, plan_code=None, \
-                company=None, is_vat_exempt=None, vat_number=None, \
-                notes=None, first_contact_datetime=None, \
-                referer=None, campaign_term=None, \
-                campaign_name=None, campaign_source=None, \
-                campaign_medium=None, campaign_content=None, \
-                meta_data=None, initial_bill_date=None, method=None,\
-                cc_number=None, cc_expiration=None, \
-                cc_card_code=None, cc_first_name=None, \
-                cc_last_name=None, cc_email=None, cc_company=None, \
-                cc_country=None, cc_address=None, cc_city=None, \
-                cc_state=None, cc_zip=None, return_url=None, cancel_url=None, \
-                bill_date=None):
+
+    def build_customer_post_data(self, code=None, first_name=None,
+                                 last_name=None, email=None, plan_code=None,
+                                 company=None, is_vat_exempt=None,
+                                 vat_number=None, notes=None,
+                                 first_contact_datetime=None, referer=None,
+                                 campaign_term=None, campaign_name=None,
+                                 campaign_source=None, campaign_medium=None,
+                                 campaign_content=None, meta_data=None,
+                                 initial_bill_date=None, method=None,
+                                 cc_number=None, cc_expiration=None,
+                                 cc_card_code=None, cc_first_name=None,
+                                 cc_last_name=None, cc_email=None,
+                                 cc_company=None, cc_country=None,
+                                 cc_address=None, cc_city=None,
+                                 cc_state=None, cc_zip=None, return_url=None,
+                                 cancel_url=None, bill_date=None):
 
         data = {}
-        
+
         if code:
             data['code'] = code
-        
+
         if first_name:
             data['firstName'] = first_name
-        
+
         if last_name:
             data['lastName'] = last_name
-            
+
         if email:
             data['email'] = email
-        
+
         if plan_code:
             data['subscription[planCode]'] = plan_code
-        
+
         if company:
             data['company'] = company
 
@@ -136,7 +148,8 @@ class CheddarProduct(object):
             data['notes'] = notes
 
         if first_contact_datetime:
-            data['firstContactDatetime'] = self.client.format_datetime(first_contact_datetime)
+            data['firstContactDatetime'] = self.client.format_datetime(
+                first_contact_datetime)
 
         if referer:
             data['referer'] = referer
@@ -159,8 +172,9 @@ class CheddarProduct(object):
                 data[full_key] = value
 
         if initial_bill_date:
-            data['subscription[initialBillDate]'] = self.client.format_date(initial_bill_date)
-        
+            data['subscription[initialBillDate]'] = self.client.format_date(
+                initial_bill_date)
+
         if method:
             data['subscription[method]'] = method
 
@@ -202,19 +216,20 @@ class CheddarProduct(object):
 
         if return_url:
             data['subscription[returnUrl]'] = return_url
-        
+
         if cancel_url:
             data['subscription[cancelUrl]'] = cancel_url
-        
+
         if bill_date:
-            data['subscription[changeBillDate]'] = self.client.format_datetime(bill_date)
+            data['subscription[changeBillDate]'] = self.client.format_datetime(
+                bill_date)
 
         return data
-        
+
     def get_customers(self, filter_data=None):
         '''
-        Returns all customers. Sometimes they are too much and cause internal 
-        server errors on CG. API call permits post parameters for filtering 
+        Returns all customers. Sometimes they are too much and cause internal
+        server errors on CG. API call permits post parameters for filtering
         which tends to fix this
         https://cheddargetter.com/developers#all-customers
 
@@ -226,40 +241,41 @@ class CheddarProduct(object):
             ]
         '''
         customers = []
-        
+
         try:
-            response = self.client.make_request(path='customers/get', data=filter_data)
+            response = self.client.make_request(path='customers/get',
+                                                data=filter_data)
         except NotFound:
             response = None
-        
+
         if response:
             customer_parser = CustomersParser()
             customers_data = customer_parser.parse_xml(response.content)
             for customer_data in customers_data:
                 customers.append(Customer(product=self, **customer_data))
-            
+
         return customers
-        
+
     def get_customer(self, code):
-        
+
         response = self.client.make_request(
             path='customers/get',
             params={'code': code},
         )
         customer_parser = CustomersParser()
         customers_data = customer_parser.parse_xml(response.content)
-        
+
         return Customer(product=self, **customers_data[0])
-    
+
     def delete_all_customers(self):
         '''
         This method does exactly what you think it does.  Calling this method
         deletes all customer data in your cheddar product and the configured
         gateway.  This action cannot be undone.
-        
+
         DO NOT RUN THIS UNLESS YOU REALLY, REALLY, REALLY MEAN TO!
         '''
-        response = self.client.make_request(
+        self.client.make_request(
             path='customers/delete-all/confirm/%d' % int(time()),
             method='POST'
         )
@@ -300,41 +316,41 @@ class CheddarProduct(object):
 
 
 class PricingPlan(object):
-    
+
     def __init__(self, name, code, id, description, is_active, is_free,
-                 trial_days, initial_bill_count, initial_bill_count_unit, 
+                 trial_days, initial_bill_count, initial_bill_count_unit,
                  billing_frequency, billing_frequency_per,
                  billing_frequency_quantity, billing_frequency_unit,
                  setup_charge_code, setup_charge_amount,
                  recurring_charge_code, recurring_charge_amount,
                  created_datetime, items, subscription=None):
-        
+
         self.load_data(name=name, code=code, id=id, description=description,
-                        is_active=is_active, is_free=is_free,
-                        trial_days=trial_days,
-                        initial_bill_count=initial_bill_count,
-                        initial_bill_count_unit=initial_bill_count_unit,
-                        billing_frequency=billing_frequency,
-                        billing_frequency_per=billing_frequency_per,
-                        billing_frequency_quantity=billing_frequency_quantity,
-                        billing_frequency_unit=billing_frequency_unit,
-                        setup_charge_code=setup_charge_code,
-                        setup_charge_amount=setup_charge_amount,
-                        recurring_charge_code=recurring_charge_code,
-                        recurring_charge_amount=recurring_charge_amount,
-                        created_datetime=created_datetime, items=items,
-                        subscription=subscription)
-        
+                       is_active=is_active, is_free=is_free,
+                       trial_days=trial_days,
+                       initial_bill_count=initial_bill_count,
+                       initial_bill_count_unit=initial_bill_count_unit,
+                       billing_frequency=billing_frequency,
+                       billing_frequency_per=billing_frequency_per,
+                       billing_frequency_quantity=billing_frequency_quantity,
+                       billing_frequency_unit=billing_frequency_unit,
+                       setup_charge_code=setup_charge_code,
+                       setup_charge_amount=setup_charge_amount,
+                       recurring_charge_code=recurring_charge_code,
+                       recurring_charge_amount=recurring_charge_amount,
+                       created_datetime=created_datetime, items=items,
+                       subscription=subscription)
+
         super(PricingPlan, self).__init__()
-        
+
     def load_data(self, name, code, id, description, is_active, is_free,
-                 trial_days, initial_bill_count, initial_bill_count_unit, 
-                 billing_frequency, billing_frequency_per,
-                 billing_frequency_quantity, billing_frequency_unit,
-                 setup_charge_code, setup_charge_amount,
-                 recurring_charge_code, recurring_charge_amount,
-                 created_datetime, items, subscription=None):
-                 
+                  trial_days, initial_bill_count, initial_bill_count_unit,
+                  billing_frequency, billing_frequency_per,
+                  billing_frequency_quantity, billing_frequency_unit,
+                  setup_charge_code, setup_charge_amount,
+                  recurring_charge_code, recurring_charge_amount,
+                  created_datetime, items, subscription=None):
+
         self.name = name
         self.code = code
         self.id = id
@@ -357,10 +373,10 @@ class PricingPlan(object):
 
         if subscription:
             self.subscription = subscription
-        
+
     def __repr__(self):
         return u'PricingPlan: %s (%s)' % (self.name, self.code)
-        
+
     @property
     def initial_bill_date(self):
         '''
@@ -368,30 +384,29 @@ class PricingPlan(object):
         based on available plan info.
         '''
         time_to_start = None
-        
+
         if self.initial_bill_count_unit == 'months':
             time_to_start = relativedelta(months=self.initial_bill_count)
         else:
             time_to_start = relativedelta(days=self.initial_bill_count)
-        
+
         initial_bill_date = datetime.utcnow().date() + time_to_start
-        
+
         return initial_bill_date
-        
-        
+
 
 class Customer(object):
-    
-    def __init__(self, code, first_name, last_name, email, product, id=None, \
-                 company=None, notes=None, gateway_token=None, \
-                 is_vat_exempt=None, vat_number=None, \
-                 first_contact_datetime=None, referer=None, \
-                 referer_host=None, campaign_source=None, \
-                 campaign_medium=None, campaign_term=None, \
-                 campaign_content=None, campaign_name=None, \
-                 created_datetime=None, modified_datetime=None, \
+
+    def __init__(self, code, first_name, last_name, email, product, id=None,
+                 company=None, notes=None, gateway_token=None,
+                 is_vat_exempt=None, vat_number=None,
+                 first_contact_datetime=None, referer=None,
+                 referer_host=None, campaign_source=None,
+                 campaign_medium=None, campaign_term=None,
+                 campaign_content=None, campaign_name=None,
+                 created_datetime=None, modified_datetime=None,
                  meta_data=None, subscriptions=None):
-                 
+
         self.load_data(code=code,
                        first_name=first_name, last_name=last_name,
                        email=email, product=product, id=id,
@@ -409,19 +424,18 @@ class Customer(object):
                        created_datetime=created_datetime,
                        modified_datetime=modified_datetime,
                        meta_data=meta_data,
-                       subscriptions=subscriptions
-                      )
-        
+                       subscriptions=subscriptions)
+
         super(Customer, self).__init__()
-        
-    def load_data(self, code, first_name, last_name, email, product, id=None,\
-                  company=None, notes=None, gateway_token=None, \
-                  is_vat_exempt=None, vat_number=None, \
-                  first_contact_datetime=None, referer=None, \
-                  referer_host=None, campaign_source=None, \
-                  campaign_medium=None, campaign_term=None, \
-                  campaign_content=None, campaign_name=None, \
-                  created_datetime=None, modified_datetime=None, \
+
+    def load_data(self, code, first_name, last_name, email, product, id=None,
+                  company=None, notes=None, gateway_token=None,
+                  is_vat_exempt=None, vat_number=None,
+                  first_contact_datetime=None, referer=None,
+                  referer_host=None, campaign_source=None,
+                  campaign_medium=None, campaign_term=None,
+                  campaign_content=None, campaign_name=None,
+                  created_datetime=None, modified_datetime=None,
                   meta_data=None, subscriptions=None):
         self.code = code
         self.id = id
@@ -446,78 +460,72 @@ class Customer(object):
 
         self.meta_data = {}
         if meta_data:
-          for datum in meta_data:
-              self.meta_data[datum['name']] = datum['value']
+            for datum in meta_data:
+                self.meta_data[datum['name']] = datum['value']
         subscription_data = subscriptions[0]
         subscription_data['customer'] = self
         if hasattr(self, 'subscription'):
             self.subscription.load_data(**subscription_data)
         else:
             self.subscription = Subscription(**subscription_data)
-        
+
     def load_data_from_xml(self, xml):
         customer_parser = CustomersParser()
         customers_data = customer_parser.parse_xml(xml)
         customer_data = customers_data[0]
         self.load_data(product=self.product, **customer_data)
-        
-    def update(self, first_name=None, last_name=None, email=None, \
-                company=None, is_vat_exempt=None, vat_number=None, \
-                notes=None, first_contact_datetime=None, \
-                referer=None, campaign_term=None, \
-                campaign_name=None, campaign_source=None, \
-                campaign_medium=None, campaign_content=None, \
-                meta_data=None, method=None, \
-                cc_number=None, cc_expiration=None, \
-                cc_card_code=None, cc_first_name=None, \
-                cc_last_name=None, cc_company=None, cc_email=None,\
-                cc_country=None, cc_address=None, cc_city=None, \
-                cc_state=None, cc_zip=None, plan_code=None, bill_date=None,
-                return_url=None, cancel_url=None,):
-        
-        data = self.product.build_customer_post_data( first_name=first_name,
-                        last_name=last_name, email=email, plan_code=plan_code,
-                        company=company, is_vat_exempt=is_vat_exempt,
-                        vat_number=vat_number, notes=notes, referer=referer,
-                        campaign_term=campaign_term,
-                        campaign_name=campaign_name,
-                        campaign_source=campaign_source,
-                        campaign_medium=campaign_medium,
-                        campaign_content=campaign_content,
-                        meta_data=meta_data, method=method,
-                        cc_number=cc_number, cc_expiration=cc_expiration,
-                        cc_card_code=cc_card_code,
-                        cc_first_name=cc_first_name,
-                        cc_last_name=cc_last_name, cc_company=cc_company,
-                        cc_email=cc_email, cc_country=cc_country,
-                        cc_address=cc_address, cc_city=cc_city,
-                        cc_state=cc_state, cc_zip=cc_zip, bill_date=bill_date,
-                        return_url=return_url, cancel_url=cancel_url,)
-        
+
+    def update(self, first_name=None, last_name=None, email=None,
+               company=None, is_vat_exempt=None, vat_number=None,
+               notes=None, first_contact_datetime=None,
+               referer=None, campaign_term=None, campaign_name=None,
+               campaign_source=None, campaign_medium=None,
+               campaign_content=None, meta_data=None, method=None,
+               cc_number=None, cc_expiration=None,
+               cc_card_code=None, cc_first_name=None,
+               cc_last_name=None, cc_company=None, cc_email=None,
+               cc_country=None, cc_address=None, cc_city=None,
+               cc_state=None, cc_zip=None, plan_code=None, bill_date=None,
+               return_url=None, cancel_url=None,):
+
+        data = self.product.build_customer_post_data(
+            first_name=first_name, last_name=last_name, email=email,
+            plan_code=plan_code, company=company, is_vat_exempt=is_vat_exempt,
+            vat_number=vat_number, notes=notes, referer=referer,
+            campaign_term=campaign_term, campaign_name=campaign_name,
+            campaign_source=campaign_source, campaign_medium=campaign_medium,
+            campaign_content=campaign_content, meta_data=meta_data,
+            method=method, cc_number=cc_number, cc_expiration=cc_expiration,
+            cc_card_code=cc_card_code,
+            cc_first_name=cc_first_name, cc_last_name=cc_last_name,
+            cc_company=cc_company, cc_email=cc_email, cc_country=cc_country,
+            cc_address=cc_address, cc_city=cc_city, cc_state=cc_state,
+            cc_zip=cc_zip, bill_date=bill_date, return_url=return_url,
+            cancel_url=cancel_url,)
+
         path = 'customers/edit'
         params = {'code': self.code}
-        
+
         response = self.product.client.make_request(
-            path = path,
-            params = params,
-            data = data,
+            path=path,
+            params=params,
+            data=data,
         )
         return self.load_data_from_xml(response.content)
-        
-        
+
     def delete(self):
         path = 'customers/delete'
         params = {'code': self.code}
-        response = self.product.client.make_request(
-            path = path,
-            params = params,
+        self.product.client.make_request(
+            path=path,
+            params=params,
         )
-        
+
     def charge(self, code, each_amount, quantity=1, description=None):
         '''
         Add an arbitrary charge or credit to a customer's account.  A positive
         number will create a charge.  A negative number will create a credit.
-        
+
         each_amount is normalized to a Decimal with a precision of 2 as that
         is the level of precision which the cheddar API supports.
         '''
@@ -530,7 +538,7 @@ class Customer(object):
         }
         if description:
             data['description'] = description
-        
+
         response = self.product.client.make_request(
             path='customers/add-charge',
             params={'code': self.code},
@@ -541,14 +549,14 @@ class Customer(object):
     def create_one_time_invoice(self, charges):
         '''
         Charges should be a list of charges to execute immediately.  Each
-        value in the charges diectionary should be a dictionary with the 
+        value in the charges diectionary should be a dictionary with the
         following keys:
 
         code
-            Your code for this charge.  This code will be displayed in the 
+            Your code for this charge.  This code will be displayed in the
             user's invoice and is limited to 36 characters.
         quantity
-            A positive integer quantity.  If not provided this value will 
+            A positive integer quantity.  If not provided this value will
             default to 1.
         each_amount
             Positive or negative integer or decimal with two digit precision.
@@ -562,7 +570,7 @@ class Customer(object):
         for n, charge in enumerate(charges):
             each_amount = Decimal(charge['each_amount'])
             each_amount = each_amount.quantize(Decimal('.01'))
-            data['charges[%d][chargeCode]' % n ] = charge['code']
+            data['charges[%d][chargeCode]' % n] = charge['code']
             data['charges[%d][quantity]' % n] = charge.get('quantity', 1)
             data['charges[%d][eachAmount]' % n] = '%.2f' % each_amount
             if 'description' in charge.keys():
@@ -574,49 +582,50 @@ class Customer(object):
             data=data,
         )
         return self.load_data_from_xml(response.content)
-    
+
     def __repr__(self):
         return u'Customer: %s %s (%s)' % (
             self.first_name,
             self.last_name,
             self.code
         )
-    
+
+
 class Subscription(object):
-    
+
     def __init__(self, id, gateway_token, cc_first_name, cc_last_name,
                  cc_company, cc_country, cc_address, cc_city, cc_state,
                  cc_zip, cc_type, cc_last_four, cc_expiration_date, customer,
-                 canceled_datetime=None ,created_datetime=None,
+                 canceled_datetime=None, created_datetime=None,
                  plans=None, invoices=None, items=None, gateway_account=None,
                  cancel_reason=None, cancel_type=None, cc_email=None,
                  redirect_url=None):
-        
-        self.load_data(id=id, gateway_token=gateway_token, 
-                        cc_first_name=cc_first_name,
-                        cc_last_name=cc_last_name, 
-                        cc_company=cc_company, cc_country=cc_country,
-                        cc_address=cc_address, cc_city=cc_city,
-                        cc_state=cc_state, cc_zip=cc_zip, cc_type=cc_type,
-                        cc_last_four=cc_last_four,
-                        cc_expiration_date=cc_expiration_date, cc_email=cc_email,
-                        customer=customer,
-                        canceled_datetime=canceled_datetime, 
-                        created_datetime=created_datetime, plans=plans,
-                        invoices=invoices, items=items, 
-                        gateway_account=gateway_account, 
-                        cancel_reason=cancel_reason, cancel_type=cancel_type,
-                        redirect_url=redirect_url)
-        
+
+        self.load_data(id=id, gateway_token=gateway_token,
+                       cc_first_name=cc_first_name,
+                       cc_last_name=cc_last_name,
+                       cc_company=cc_company, cc_country=cc_country,
+                       cc_address=cc_address, cc_city=cc_city,
+                       cc_state=cc_state, cc_zip=cc_zip, cc_type=cc_type,
+                       cc_last_four=cc_last_four,
+                       cc_expiration_date=cc_expiration_date,
+                       cc_email=cc_email, customer=customer,
+                       canceled_datetime=canceled_datetime,
+                       created_datetime=created_datetime, plans=plans,
+                       invoices=invoices, items=items,
+                       gateway_account=gateway_account,
+                       cancel_reason=cancel_reason, cancel_type=cancel_type,
+                       redirect_url=redirect_url)
+
         super(Subscription, self).__init__()
-        
+
     def load_data(self, id, gateway_token, cc_first_name, cc_last_name,
                   cc_company, cc_country, cc_address, cc_city, cc_state,
                   cc_zip, cc_type, cc_last_four, cc_expiration_date, customer,
-                  cc_email=None, canceled_datetime=None ,created_datetime=None,
+                  cc_email=None, canceled_datetime=None, created_datetime=None,
                   plans=None, invoices=None, items=None, gateway_account=None,
                   cancel_reason=None, cancel_type=None, redirect_url=None):
-                 
+
         self.id = id
         self.gateway_token = gateway_token
         self.cc_first_name = cc_first_name
@@ -647,7 +656,7 @@ class Subscription(object):
         plan_data = plans[0]
         for item in plan_data['items']:
             items_map[item['code']]['plan_data'] = item
-        
+
         if not hasattr(self, 'items'):
             self.items = {}
         for code, item_map in items_map.iteritems():
@@ -656,7 +665,7 @@ class Subscription(object):
             item_data = copy(plan_item_data)
             item_data.update(subscription_item_data)
             item_data['subscription'] = self
-            
+
             if code in self.items.keys():
                 item = self.items[code]
                 item.load_data(**item_data)
@@ -668,17 +677,17 @@ class Subscription(object):
             self.plan.load_data(**plan_data)
         else:
             self.plan = PricingPlan(**plan_data)
-    
+
     def __repr__(self):
         return u'Subscription: %s' % self.id
-        
+
     def cancel(self):
         client = self.customer.product.client
         response = client.make_request(
             path='customers/cancel',
             params={'code': self.customer.code},
         )
-        
+
         customer_parser = CustomersParser()
         customers_data = customer_parser.parse_xml(response.content)
         customer_data = customers_data[0]
@@ -686,27 +695,28 @@ class Subscription(object):
             product=self.customer.product,
             **customer_data
         )
-        
+
+
 class Item(object):
-    
+
     def __init__(self, code, subscription, id=None, name=None,
                  quantity_included=None, is_periodic=None,
                  overage_amount=None, created_datetime=None,
                  modified_datetime=None, quantity=None):
-                 
+
         self.load_data(code=code, subscription=subscription, id=id, name=name,
-                      quantity_included=quantity_included,
-                      is_periodic=is_periodic, overage_amount=overage_amount,
-                      created_datetime=created_datetime,
-                      modified_datetime=modified_datetime, quantity=quantity)
-        
+                       quantity_included=quantity_included,
+                       is_periodic=is_periodic, overage_amount=overage_amount,
+                       created_datetime=created_datetime,
+                       modified_datetime=modified_datetime, quantity=quantity)
+
         super(Item, self).__init__()
-        
+
     def load_data(self, code, subscription, id=None, name=None,
-                 quantity_included=None, is_periodic=None,
-                 overage_amount=None, created_datetime=None,
-                 modified_datetime=None, quantity=None):
-                 
+                  quantity_included=None, is_periodic=None,
+                  overage_amount=None, created_datetime=None,
+                  modified_datetime=None, quantity=None):
+
         self.code = code
         self.subscription = subscription
         self.id = id
@@ -717,86 +727,86 @@ class Item(object):
         self.overage_amount = overage_amount
         self.created = created_datetime
         self.modified = modified_datetime
-    
+
     def __repr__(self):
         return u'Item: %s for %s' % (
             self.code,
             self.subscription.customer.code,
         )
-        
+
     def _normalize_quantity(self, quantity=None):
         if quantity is not None:
             quantity = Decimal(quantity)
             quantity = quantity.quantize(Decimal('.0001'))
-        
+
         return quantity
-    
+
     def increment(self, quantity=None):
         '''
         Increment the item's quantity by the passed in amount.  If nothing is
         passed in, a quantity of 1 is assumed.  If a decimal value is passsed
-        in, it is rounded to the 4th decimal place as that is the level of 
+        in, it is rounded to the 4th decimal place as that is the level of
         precision which the Cheddar API accepts.
         '''
         data = {}
         if quantity:
             data['quantity'] = self._normalize_quantity(quantity)
-        
+
         response = self.subscription.customer.product.client.make_request(
-            path = 'customers/add-item-quantity',
-            params = {
+            path='customers/add-item-quantity',
+            params={
                 'code': self.subscription.customer.code,
                 'itemCode': self.code,
             },
-            data = data,
-            method = 'POST',
+            data=data,
+            method='POST',
         )
-        
+
         return self.subscription.customer.load_data_from_xml(response.content)
-        
+
     def decrement(self, quantity=None):
         '''
         Decrement the item's quantity by the passed in amount.  If nothing is
         passed in, a quantity of 1 is assumed.  If a decimal value is passsed
-        in, it is rounded to the 4th decimal place as that is the level of 
+        in, it is rounded to the 4th decimal place as that is the level of
         precision which the Cheddar API accepts.
         '''
         data = {}
         if quantity:
             data['quantity'] = self._normalize_quantity(quantity)
-         
+
         response = self.subscription.customer.product.client.make_request(
-            path = 'customers/remove-item-quantity',
-            params = {
+            path='customers/remove-item-quantity',
+            params={
                 'code': self.subscription.customer.code,
                 'itemCode': self.code,
             },
-            data = data,
-            method = 'POST',
+            data=data,
+            method='POST',
         )
-        
+
         return self.subscription.customer.load_data_from_xml(response.content)
-        
+
     def set(self, quantity):
         '''
         Set the item's quantity to the passed in amount.  If nothing is
         passed in, a quantity of 1 is assumed.  If a decimal value is passsed
-        in, it is rounded to the 4th decimal place as that is the level of 
+        in, it is rounded to the 4th decimal place as that is the level of
         precision which the Cheddar API accepts.
         '''
         data = {}
         data['quantity'] = self._normalize_quantity(quantity)
-         
+
         response = self.subscription.customer.product.client.make_request(
-            path = 'customers/set-item-quantity',
-            params = {
+            path='customers/set-item-quantity',
+            params={
                 'code': self.subscription.customer.code,
                 'itemCode': self.code,
             },
-            data = data,
-            method = 'POST',
+            data=data,
+            method='POST',
         )
-        
+
         return self.subscription.customer.load_data_from_xml(response.content)
 
 

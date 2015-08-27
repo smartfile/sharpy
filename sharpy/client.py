@@ -1,17 +1,26 @@
 import base64
 import logging
 from urllib import urlencode
-from decimal import getcontext
 from dateutil.tz import tzutc
 import httplib2
 
-from sharpy.exceptions import CheddarError, AccessDenied, BadRequest, NotFound, PreconditionFailed, CheddarFailure, NaughtyGateway, UnprocessableEntity
+from sharpy.exceptions import AccessDenied
+from sharpy.exceptions import BadRequest
+from sharpy.exceptions import CheddarError
+from sharpy.exceptions import CheddarFailure
+from sharpy.exceptions import NaughtyGateway
+from sharpy.exceptions import NotFound
+from sharpy.exceptions import PreconditionFailed
+from sharpy.exceptions import UnprocessableEntity
 
 client_log = logging.getLogger('SharpyClient')
 
+
 class Client(object):
     default_endpoint = 'https://cheddargetter.com/xml'
-    def __init__(self, username, password, product_code, cache=None, timeout=None, endpoint=None):
+
+    def __init__(self, username, password, product_code, cache=None,
+                 timeout=None, endpoint=None):
         '''
         username - Your cheddargetter username (probably an email address)
         password - Your cheddargetter password
@@ -83,7 +92,8 @@ class Client(object):
             method = 'POST'
             body = urlencode(data)
             headers = {
-                'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'content-type':
+                    'application/x-www-form-urlencoded; charset=UTF-8',
             }
 
         client_log.debug('Request Method:  %s' % method)
@@ -92,10 +102,10 @@ class Client(object):
 
         # Setup http client
         h = httplib2.Http(cache=self.cache, timeout=self.timeout)
-        #h.add_credentials(self.username, self.password)
-        # Skip the normal http client behavior and send auth headers immediately
-        # to save an http request.
-        headers['Authorization'] = "Basic %s" % base64.standard_b64encode(self.username + ':' + self.password).strip()
+        # Skip the normal http client behavior and send auth headers
+        # immediately to save an http request.
+        headers['Authorization'] = "Basic %s" % base64.standard_b64encode(
+            self.username + ':' + self.password).strip()
 
         # Make request
         response, content = h.request(url, method, body=body, headers=headers)
@@ -123,5 +133,3 @@ class Client(object):
 
         response.content = content
         return response
-
-
