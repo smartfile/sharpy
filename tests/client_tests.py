@@ -93,8 +93,9 @@ class ClientTests(unittest.TestCase):
         client = self.get_client(username=bad_username)
         client.make_request(path)
         
-    @raises(BadRequest)
+    @raises(NotFound)
     def test_make_request_bad_request(self):
+        """ Attempt to grab the plans without adding /get to the url. """
         path = 'plans'
         client = self.get_client()
         client.make_request(path)
@@ -104,7 +105,7 @@ class ClientTests(unittest.TestCase):
         path = 'things-which-dont-exist'
         client = self.get_client()
         client.make_request(path)
-        
+
     @clear_users
     def test_post_request(self):
         path = 'customers/new'
@@ -118,7 +119,6 @@ class ClientTests(unittest.TestCase):
         client = self.get_client()
         client.make_request(path, data=data)
     
-
     def generate_error_response(self, auxcode=None, path=None, params=None, **overrides):
         '''
         Creates a request to cheddar which should return an error
@@ -244,7 +244,9 @@ class ClientTests(unittest.TestCase):
 
     @clear_users
     def test_chedder_update_customer_error(self):
-        # Overriding the zipcode so a customer actually gets created
+        """
+        Test overriding the zipcode so a customer actually gets updated.
+        """
         overrides = {
             'subscription[ccZip]': 12345
         }
