@@ -2,13 +2,12 @@ import random
 import string
 
 from copy import copy
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 import unittest
-from unittest.case import SkipTest
 
 from dateutil.relativedelta import relativedelta
-from dateutil.tz import *
+from dateutil.tz import tzutc
 from nose.tools import raises
 from testconfig import config
 
@@ -17,26 +16,27 @@ from sharpy.exceptions import NotFound
 
 from testing_tools.decorators import clear_users
 
+
 class ProductTests(unittest.TestCase):
-    
-    client_defaults =  {
+
+    client_defaults = {
         'username': config['cheddar']['username'],
         'password': config['cheddar']['password'],
         'product_code': config['cheddar']['product_code'],
         'endpoint': config['cheddar']['endpoint'],
     }
-    
+
     customer_defaults = {
         'code': 'test',
-        'email':'garbage@saaspire.com',
+        'email': 'garbage@saaspire.com',
         'first_name': 'Test',
         'last_name': 'User',
         'plan_code': 'FREE_MONTHLY',
     }
 
-    paypal_defaults  = {
+    paypal_defaults = {
         'code': 'test',
-        'email':'garbage@saaspire.com',
+        'email': 'garbage@saaspire.com',
         'first_name': 'Test',
         'last_name': 'User',
         'plan_code': 'PAID_MONTHLY',
@@ -47,9 +47,9 @@ class ProductTests(unittest.TestCase):
         'return_url': 'http://example.com/return',
         'cancel_url': 'http://example.com/cancel',
     }
-    
+
     exipration = datetime.now() + timedelta(days=180)
-    
+
     paid_defaults = {
         'cc_number': '4111111111111111',
         'cc_expiration': exipration.strftime('%m/%Y'),
@@ -64,10 +64,10 @@ class ProductTests(unittest.TestCase):
         'cc_zip': '12345',
         'plan_code': 'PAID_MONTHLY',
     }
-    
+
     def get_product(self):
         product = CheddarProduct(**self.client_defaults)
-        
+
         return product
 
     def test_repr(self):
@@ -79,15 +79,15 @@ class ProductTests(unittest.TestCase):
 
     def test_instantiate_product(self):
         product = self.get_product()
-        
+
         for key, value in self.client_defaults.items():
             self.assertEquals(value, getattr(product.client, key))
-            
+
     def test_get_all_plans(self):
         product = self.get_product()
-        
+
         plans = product.get_all_plans()
-        
+
         for plan in plans:
             if plan.code == 'FREE_MONTHLY':
                 free_plan = plan
@@ -95,28 +95,28 @@ class ProductTests(unittest.TestCase):
                 paid_plan = plan
             elif plan.code == 'TRACKED_MONTHLY':
                 tracked_plan = plan
-            
+
         self.assertEquals('FREE_MONTHLY', free_plan.code)
         self.assertEquals('PAID_MONTHLY', paid_plan.code)
         self.assertEquals('TRACKED_MONTHLY', tracked_plan.code)
-        
+
     def test_get_plan(self):
         product = self.get_product()
         code = 'PAID_MONTHLY'
         plan = product.get_plan(code)
-        
+
         self.assertEquals(code, plan.code)
-        
+
     def test_plan_initial_bill_date(self):
         product = self.get_product()
         code = 'PAID_MONTHLY'
         plan = product.get_plan(code)
-        
+
         expected = datetime.utcnow().date() + relativedelta(months=1)
         result = plan.initial_bill_date
-        
+
         self.assertEquals(expected, result)
-        
+
     def get_customer(self, **kwargs):
         customer_data = copy(self.customer_defaults)
         # We need to make unique customers with the same data.
@@ -128,11 +128,11 @@ class ProductTests(unittest.TestCase):
         customer_data.update({'notes': random_string})
         customer_data.update(kwargs)
         product = self.get_product()
-        
+
         customer = product.create_customer(**customer_data)
-        
+
         return customer
-        
+
     def get_customer_with_items(self, **kwargs):
         data = copy(self.paid_defaults)
         if 'items' in kwargs.keys():
@@ -141,11 +141,11 @@ class ProductTests(unittest.TestCase):
             items = []
             items.append({'code': 'MONTHLY_ITEM', 'quantity': 3})
             items.append({'code': 'ONCE_ITEM'})
-        
+
         data['items'] = items
         data['plan_code'] = 'TRACKED_MONTHLY'
         customer = self.get_customer(**data)
-        
+
         return customer
 
     @clear_users
@@ -158,7 +158,7 @@ class ProductTests(unittest.TestCase):
 
     @clear_users
     def test_create_customer_with_meta_data(self):
-        self.get_customer(meta_data = {'key_1': 'value_1', 'key2': 'value_2'})
+        self.get_customer(meta_data={'key_1': 'value_1', 'key2': 'value_2'})
 
     @clear_users
     def test_create_customer_with_true_vat_exempt(self):
@@ -206,8 +206,8 @@ class ProductTests(unittest.TestCase):
         customer = self.get_customer(initial_bill_date=initial_bill_date)
         invoice = customer.subscription.invoices[0]
         real_bill_date = invoice['billing_datetime']
-        
-        # Sometimes cheddar getter will push the bill date to the next day 
+
+        # Sometimes cheddar getter will push the bill date to the next day
         # if the request is made around UTC midnight
         diff = initial_bill_date.date() - real_bill_date.date()
         self.assertLessEqual(diff.days, 1)
@@ -220,7 +220,7 @@ class ProductTests(unittest.TestCase):
     def test_create_paid_customer_with_charges(self):
         data = copy(self.paid_defaults)
         charges = []
-        charges.append({'code': 'test_charge_1', 'each_amount':2})
+        charges.append({'code': 'test_charge_1', 'each_amount': 2})
         charges.append({'code': 'charge2', 'quantity': 3, 'each_amount': 4})
         data['charges'] = charges
         self.get_customer(**data)
@@ -229,7 +229,8 @@ class ProductTests(unittest.TestCase):
     def test_create_paid_customer_with_decimal_charges(self):
         data = copy(self.paid_defaults)
         charges = []
-        charges.append({'code': 'test_charge_1', 'each_amount': Decimal('2.30')})
+        charges.append({'code': 'test_charge_1',
+                        'each_amount': Decimal('2.30')})
         charges.append({'code': 'charge2', 'each_amount': Decimal('-4.5')})
         data['charges'] = charges
         self.get_customer(**data)
@@ -282,10 +283,10 @@ class ProductTests(unittest.TestCase):
     def test_subscription_repr(self):
         customer = self.get_customer()
         subscription = customer.subscription
-        
+
         expected = 'Subscription:'
         result = repr(subscription)
-        
+
         self.assertIn(expected, result)
 
     @clear_users
@@ -293,10 +294,10 @@ class ProductTests(unittest.TestCase):
         customer = self.get_customer()
         subscription = customer.subscription
         plan = subscription.plan
-        
+
         expected = 'PricingPlan: Free Monthly (FREE_MONTHLY)'
         result = repr(plan)
-        
+
         self.assertEquals(expected, result)
 
     @clear_users
@@ -304,25 +305,26 @@ class ProductTests(unittest.TestCase):
         customer = self.get_customer_with_items()
         subscription = customer.subscription
         item = subscription.items['MONTHLY_ITEM']
-        
+
         expected = 'Item: MONTHLY_ITEM for test'
         result = repr(item)
-        
+
         self.assertEquals(expected, result)
 
     @clear_users
     def test_get_customers(self):
-        customer1 = self.get_customer()
+        ''' Create two customers, verify 2 returned. '''
+        self.get_customer()
         customer2_data = copy(self.paid_defaults)
         customer2_data.update({
             'code': 'test2',
-            'email':'garbage+2@saaspire.com',
+            'email': 'garbage+2@saaspire.com',
             'first_name': 'Test2',
             'last_name': 'User2',
         })
-        customer2 = self.get_customer(**customer2_data)
+        self.get_customer(**customer2_data)
         product = self.get_product()
-        
+
         fetched_customers = product.get_customers()
         self.assertEquals(2, len(fetched_customers))
 
@@ -330,12 +332,14 @@ class ProductTests(unittest.TestCase):
     def test_get_customer(self):
         created_customer = self.get_customer()
         product = self.get_product()
-        
+
         fetched_customer = product.get_customer(code=created_customer.code)
-        
+
         self.assertEquals(created_customer.code, fetched_customer.code)
-        self.assertEquals(created_customer.first_name, fetched_customer.first_name)
-        self.assertEquals(created_customer.last_name, fetched_customer.last_name)
+        self.assertEquals(created_customer.first_name,
+                          fetched_customer.first_name)
+        self.assertEquals(created_customer.last_name,
+                          fetched_customer.last_name)
         self.assertEquals(created_customer.email, fetched_customer.email)
 
     @clear_users
@@ -343,10 +347,10 @@ class ProductTests(unittest.TestCase):
         new_name = 'Different'
         customer = self.get_customer()
         product = self.get_product()
-        
+
         customer.update(first_name=new_name)
         self.assertEquals(new_name, customer.first_name)
-        
+
         fetched_customer = product.get_customer(code=customer.code)
         self.assertEquals(customer.first_name, fetched_customer.first_name)
 
@@ -355,25 +359,28 @@ class ProductTests(unittest.TestCase):
     def test_delete_customer(self):
         customer = self.get_customer()
         product = self.get_product()
-        
+
         fetched_customer = product.get_customer(code=customer.code)
         self.assertEquals(customer.first_name, fetched_customer.first_name)
-        
+
         customer.delete()
         fetched_customer = product.get_customer(code=customer.code)
 
-
     @clear_users
     def test_delete_all_customers(self):
-        customer_1 = self.get_customer()
-        customer_2 = self.get_customer(code='test2')
+        '''
+        Create two customers, verify 2 returned,
+        delete and verify 0 customers.
+        '''
+        self.get_customer()
+        self.get_customer(code='test2')
         product = self.get_product()
-        
+
         fetched_customers = product.get_customers()
         self.assertEquals(2, len(fetched_customers))
-        
+
         product.delete_all_customers()
-        
+
         fetched_customers = product.get_customers()
         self.assertEquals(0, len(fetched_customers))
 
@@ -381,28 +388,28 @@ class ProductTests(unittest.TestCase):
     def test_cancel_subscription(self):
         customer = self.get_customer()
         customer.subscription.cancel()
-        
+
         now = datetime.now(tzutc())
         canceled_on = customer.subscription.canceled
         diff = now - canceled_on
         limit = timedelta(seconds=10)
 
         self.assertLess(diff, limit)
-        
+
     def assert_increment(self, quantity=None):
         customer = self.get_customer_with_items()
         product = self.get_product()
         item = customer.subscription.items['MONTHLY_ITEM']
-        
+
         old_quantity = item.quantity_used
         item.increment(quantity)
         new_quantity = item.quantity_used
         diff = new_quantity - old_quantity
         expected = Decimal(quantity or 1)
         self.assertAlmostEqual(expected, diff, places=2)
-        
+
         fetched_customer = product.get_customer(code=customer.code)
-        fetched_item = customer.subscription.items[item.code]
+        fetched_item = fetched_customer.subscription.items[item.code]
         self.assertEquals(item.quantity_used, fetched_item.quantity_used)
 
     @clear_users
@@ -420,21 +427,21 @@ class ProductTests(unittest.TestCase):
     @clear_users
     def test_decimal_increment(self):
         self.assert_increment(Decimal('1.234'))
-        
+
     def assert_decrement(self, quantity=None):
         customer = self.get_customer_with_items()
         product = self.get_product()
         item = customer.subscription.items['MONTHLY_ITEM']
-        
+
         old_quantity = item.quantity_used
         item.decrement(quantity)
         new_quantity = item.quantity_used
         diff = old_quantity - new_quantity
         expected = Decimal(quantity or 1)
         self.assertAlmostEqual(expected, diff, places=2)
-        
+
         fetched_customer = product.get_customer(code=customer.code)
-        fetched_item = customer.subscription.items[item.code]
+        fetched_item = fetched_customer.subscription.items[item.code]
         self.assertEquals(item.quantity_used, fetched_item.quantity_used)
 
     @clear_users
@@ -452,20 +459,19 @@ class ProductTests(unittest.TestCase):
     @clear_users
     def test_decimal_decrement(self):
         self.assert_decrement(Decimal('1.234'))
-        
+
     def assert_set(self, quantity):
         customer = self.get_customer_with_items()
         product = self.get_product()
         item = customer.subscription.items['MONTHLY_ITEM']
-        
-        old_quantity = item.quantity_used
+
         item.set(quantity)
         new_quantity = item.quantity_used
         expected = Decimal(quantity)
         self.assertAlmostEqual(expected, new_quantity, places=2)
-        
+
         fetched_customer = product.get_customer(code=customer.code)
-        fetched_item = customer.subscription.items[item.code]
+        fetched_item = fetched_customer.subscription.items[item.code]
         self.assertEquals(item.quantity_used, fetched_item.quantity_used)
 
     @clear_users
@@ -479,40 +485,42 @@ class ProductTests(unittest.TestCase):
     @clear_users
     def test_decimal_set(self):
         self.assert_set(Decimal('1.234'))
-        
+
     def assert_charged(self, code, each_amount, quantity=None,
-                        description=None):
+                       description=None):
         customer = self.get_customer(**self.paid_defaults)
         product = self.get_product()
-    
+
         customer.charge(
             code=code,
             each_amount=each_amount,
             quantity=quantity,
             description=description,
         )
-        
+
         if description is None:
             description = ''
-        
+
         found_charge = None
         for invoice in customer.subscription.invoices:
             for charge in invoice['charges']:
                 if charge['code'] == code:
                     found_charge = charge
-        
-        self.assertAlmostEqual(Decimal(each_amount), found_charge['each_amount'], places=2)
+
+        self.assertAlmostEqual(Decimal(each_amount),
+                               found_charge['each_amount'], places=2)
         self.assertEqual(quantity, found_charge['quantity'])
         self.assertEqual(description, found_charge['description'])
-        
+
         fetched_customer = product.get_customer(code=customer.code)
         fetched_charge = None
         for invoice in fetched_customer.subscription.invoices:
             for charge in invoice['charges']:
                 if charge['code'] == code:
                     fetched_charge = charge
-        
-        self.assertAlmostEqual(Decimal(each_amount), fetched_charge['each_amount'], places=2)
+
+        self.assertAlmostEqual(Decimal(each_amount),
+                               fetched_charge['each_amount'], places=2)
         self.assertEqual(quantity, fetched_charge['quantity'])
         self.assertEqual(description, fetched_charge['description'])
 
@@ -526,28 +534,31 @@ class ProductTests(unittest.TestCase):
 
     @clear_users
     def test_add_decimal_charge(self):
-        self.assert_charged(code='TEST-CHARGE', each_amount=Decimal('2.3'), quantity=3)
+        self.assert_charged(code='TEST-CHARGE', each_amount=Decimal('2.3'),
+                            quantity=3)
 
     @clear_users
     def test_add_charge_with_descriptions(self):
-        self.assert_charged(code='TEST-CHARGE', each_amount=1, quantity=1, description="A test charge")
+        self.assert_charged(code='TEST-CHARGE', each_amount=1, quantity=1,
+                            description="A test charge")
 
     @clear_users
     def test_add_credit(self):
         self.assert_charged(code='TEST-CHARGE', each_amount=-1, quantity=1)
 
-    def assertCharge(self, customer, code, each_amount, quantity, description='', invoice_type=None):
+    def assertCharge(self, customer, code, each_amount, quantity,
+                     description='', invoice_type=None):
         found_charge = None
         for invoice in customer.subscription.invoices:
             if invoice_type is None or invoice['type'] == invoice_type:
                 for charge in invoice['charges']:
                     if charge['code'] == code:
                         found_charge = charge
-        
-        self.assertAlmostEqual(Decimal(each_amount), found_charge['each_amount'], places=2)
+
+        self.assertAlmostEqual(Decimal(each_amount),
+                               found_charge['each_amount'], places=2)
         self.assertEqual(quantity, found_charge['quantity'])
         self.assertEqual(description, found_charge['description'])
-
 
     def assertOneTimeInvoice(self, charges):
         customer = self.get_customer(**self.paid_defaults)
@@ -558,59 +569,62 @@ class ProductTests(unittest.TestCase):
         for charge in charges:
             self.assertCharge(
                 customer,
-                code = charge['code'],
-                quantity = charge['quantity'],
-                each_amount = charge['each_amount'],
-                description = charge.get('description', ''),
-                invoice_type = 'one-time',
+                code=charge['code'],
+                quantity=charge['quantity'],
+                each_amount=charge['each_amount'],
+                description=charge.get('description', ''),
+                invoice_type='one-time',
             )
 
         fetched_customer = product.get_customer(code=customer.code)
         for charge in charges:
             self.assertCharge(
                 fetched_customer,
-                code = charge['code'],
-                quantity = charge['quantity'],
-                each_amount = charge['each_amount'],
-                description = charge.get('description', ''),
-                invoice_type = 'one-time',
+                code=charge['code'],
+                quantity=charge['quantity'],
+                each_amount=charge['each_amount'],
+                description=charge.get('description', ''),
+                invoice_type='one-time',
             )
 
     @clear_users
     def test_add_simple_one_time_invoice(self):
-        charges = [{
-            'code': 'immediate-test',
-            'quantity': 1,
-            'each_amount': Decimal(5.23)
-        },]
+        charges = [
+            {
+                'code': 'immediate-test',
+                'quantity': 1,
+                'each_amount': Decimal(5.23)
+            }]
 
         self.assertOneTimeInvoice(charges)
 
     @clear_users
     def test_add_one_time_invoice_with_description(self):
-        charges = [{
-            'code': 'immediate-test',
-            'quantity': 1,
-            'each_amount': Decimal(5.23),
-            'description': 'This is a test charge'
-        },]
+        charges = [
+            {
+                'code': 'immediate-test',
+                'quantity': 1,
+                'each_amount': Decimal(5.23),
+                'description': 'This is a test charge'
+            }]
 
         self.assertOneTimeInvoice(charges)
 
     @clear_users
     def test_add_one_time_invoice_with_multiple_charges(self):
-        charges = [{
-            'code': 'immediate-test',
-            'quantity': 1,
-            'each_amount': Decimal(5.23),
-            'description': 'This is a test charge'
-        },
-        {
-            'code': 'immediate-test-2',
-            'quantity': 3,
-            'each_amount': 15,
-            'description': 'This is another test charge'
-        },]
+        charges = [
+            {
+                'code': 'immediate-test',
+                'quantity': 1,
+                'each_amount': Decimal(5.23),
+                'description': 'This is a test charge'
+            },
+            {
+                'code': 'immediate-test-2',
+                'quantity': 3,
+                'each_amount': 15,
+                'description': 'This is another test charge'
+            }]
 
         self.assertOneTimeInvoice(charges)
 
@@ -632,7 +646,8 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(promotion.name, 'Coupon')
         self.assertEqual(promotion.coupons[0].get('code'), 'COUPON')
         self.assertEqual(promotion.incentives[0].get('percentage'), '10')
-        self.assertEqual(promotion.incentives[0].get('expiration_datetime'), None)
+        self.assertEqual(promotion.incentives[0].get('expiration_datetime'),
+                         None)
 
     def test_promotion_repr(self):
         ''' Test the internal __repr___ method of Promotion. '''
@@ -641,7 +656,7 @@ class ProductTests(unittest.TestCase):
 
         expected = 'Promotion: Coupon (COUPON)'
         result = repr(promotion)
-        
+
         self.assertEquals(expected, result)
 
     def test_promotion_unicode(self):
@@ -651,5 +666,5 @@ class ProductTests(unittest.TestCase):
 
         expected = 'Coupon (COUPON)'
         result = unicode(promotion)
-        
+
         self.assertEquals(expected, result)
