@@ -340,16 +340,7 @@ class PromotionsParser(CheddarOutputParser):
         for promotion_xml in promotions_xml:
             promotion = self.parse_promotion(promotion_xml)
             promotions.append(promotion)
-        
-        return promotions
 
-    def parse_promotions(self, promotions_element):
-        promotions = []
-        
-        if promotions_element is not None:
-            for promotion_element in promotions_element:
-                promotions.append(self.parse_promotion(promotion_element))
-            
         return promotions
 
     def parse_promotion(self, promotion_element):
