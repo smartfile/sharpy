@@ -275,11 +275,10 @@ class CheddarProduct(object):
 
         DO NOT RUN THIS UNLESS YOU REALLY, REALLY, REALLY MEAN TO!
         '''
-        response = self.client.make_request(
+        self.client.make_request(
             path='customers/delete-all/confirm/%d' % int(time()),
             method='POST'
         )
-        return self.load_data_from_xml(response.content)
 
     def get_all_promotions(self):
         '''
@@ -517,11 +516,10 @@ class Customer(object):
     def delete(self):
         path = 'customers/delete'
         params = {'code': self.code}
-        response = self.product.client.make_request(
+        self.product.client.make_request(
             path=path,
             params=params,
         )
-        return self.load_data_from_xml(response.content)
 
     def charge(self, code, each_amount, quantity=1, description=None):
         '''
