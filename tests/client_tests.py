@@ -106,7 +106,6 @@ class ClientTests(unittest.TestCase):
         client = self.get_client()
         client.make_request(path)
 
-    @unittest.skip('Skip until deleting customers is working')
     @clear_users
     def test_post_request(self):
         path = 'customers/new'
@@ -120,7 +119,6 @@ class ClientTests(unittest.TestCase):
         client = self.get_client()
         client.make_request(path, data=data)
     
-    @unittest.skip('Skip until deleting customers is working')
     def generate_error_response(self, auxcode=None, path=None, params=None, **overrides):
         '''
         Creates a request to cheddar which should return an error
@@ -244,7 +242,6 @@ class ClientTests(unittest.TestCase):
 
         self.assertEquals(expected, result)
 
-    @unittest.skip('I can not figure this out.')
     @clear_users
     def test_chedder_update_customer_error(self):
         """
