@@ -58,6 +58,7 @@ The following promotions are required for unit tests:
 +----------------+---------------+--------+-----------+
 
 Be sure to turn on the native gateway credit card option in Configuration > Product settings > Gateway Settings.
+Be sure to turn on the paypal option in Configuration > Product settings > Gateway Settings or Quick Setup > Billing solution. I checked the "Use standard payments (PayPal account to PayPal account)" checkbox.
 
 Config
 ======
