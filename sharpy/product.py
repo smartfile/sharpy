@@ -59,8 +59,9 @@ class CheddarProduct(object):
                         cc_card_code=None, cc_first_name=None,
                         cc_last_name=None, cc_email=None, cc_company=None,
                         cc_country=None, cc_address=None, cc_city=None,
-                        cc_state=None, cc_zip=None, return_url=None,
-                        cancel_url=None, charges=None, items=None):
+                        cc_state=None, cc_zip=None, coupon_code=None,
+                        return_url=None, cancel_url=None, charges=None,
+                        items=None):
 
         data = self.build_customer_post_data(code, first_name, last_name,
                                              email, plan_code, company,
@@ -75,7 +76,8 @@ class CheddarProduct(object):
                                              cc_last_name, cc_email,
                                              cc_company, cc_country,
                                              cc_address, cc_city, cc_state,
-                                             cc_zip, return_url, cancel_url)
+                                             cc_zip, coupon_code, return_url,
+                                             cancel_url)
 
         if charges:
             for i, charge in enumerate(charges):
@@ -112,8 +114,9 @@ class CheddarProduct(object):
                                  cc_last_name=None, cc_email=None,
                                  cc_company=None, cc_country=None,
                                  cc_address=None, cc_city=None,
-                                 cc_state=None, cc_zip=None, return_url=None,
-                                 cancel_url=None, bill_date=None):
+                                 cc_state=None, cc_zip=None, coupon_code=None,
+                                 return_url=None, cancel_url=None,
+                                 bill_date=None):
 
         data = {}
 
@@ -213,6 +216,9 @@ class CheddarProduct(object):
 
         if cc_zip:
             data['subscription[ccZip]'] = cc_zip
+
+        if coupon_code:
+            data['subscription[couponCode]'] = coupon_code
 
         if return_url:
             data['subscription[returnUrl]'] = return_url
@@ -405,7 +411,7 @@ class Customer(object):
                  campaign_medium=None, campaign_term=None,
                  campaign_content=None, campaign_name=None,
                  created_datetime=None, modified_datetime=None,
-                 meta_data=None, subscriptions=None):
+                 coupon_code=None, meta_data=None, subscriptions=None):
 
         self.load_data(code=code,
                        first_name=first_name, last_name=last_name,
@@ -423,7 +429,7 @@ class Customer(object):
                        campaign_name=campaign_name,
                        created_datetime=created_datetime,
                        modified_datetime=modified_datetime,
-                       meta_data=meta_data,
+                       coupon_code=coupon_code, meta_data=meta_data,
                        subscriptions=subscriptions)
 
         super(Customer, self).__init__()
@@ -436,7 +442,7 @@ class Customer(object):
                   campaign_medium=None, campaign_term=None,
                   campaign_content=None, campaign_name=None,
                   created_datetime=None, modified_datetime=None,
-                  meta_data=None, subscriptions=None):
+                  coupon_code=None, meta_data=None, subscriptions=None):
         self.code = code
         self.id = id
         self.first_name = first_name
@@ -457,6 +463,7 @@ class Customer(object):
         self.campaign_name = campaign_name
         self.created = created_datetime
         self.modified = modified_datetime
+        self.coupon_code = coupon_code
 
         self.meta_data = {}
         if meta_data:
@@ -486,7 +493,7 @@ class Customer(object):
                cc_last_name=None, cc_company=None, cc_email=None,
                cc_country=None, cc_address=None, cc_city=None,
                cc_state=None, cc_zip=None, plan_code=None, bill_date=None,
-               return_url=None, cancel_url=None,):
+               coupon_code=None, return_url=None, cancel_url=None,):
 
         data = self.product.build_customer_post_data(
             first_name=first_name, last_name=last_name, email=email,
@@ -500,8 +507,8 @@ class Customer(object):
             cc_first_name=cc_first_name, cc_last_name=cc_last_name,
             cc_company=cc_company, cc_email=cc_email, cc_country=cc_country,
             cc_address=cc_address, cc_city=cc_city, cc_state=cc_state,
-            cc_zip=cc_zip, bill_date=bill_date, return_url=return_url,
-            cancel_url=cancel_url,)
+            cc_zip=cc_zip, bill_date=bill_date, coupon_code=coupon_code,
+            return_url=return_url, cancel_url=cancel_url,)
 
         path = 'customers/edit'
         params = {'code': self.code}
@@ -599,7 +606,7 @@ class Subscription(object):
                  canceled_datetime=None, created_datetime=None,
                  plans=None, invoices=None, items=None, gateway_account=None,
                  cancel_reason=None, cancel_type=None, cc_email=None,
-                 redirect_url=None):
+                 coupon_code=None, redirect_url=None):
 
         self.load_data(id=id, gateway_token=gateway_token,
                        cc_first_name=cc_first_name,
@@ -615,7 +622,7 @@ class Subscription(object):
                        invoices=invoices, items=items,
                        gateway_account=gateway_account,
                        cancel_reason=cancel_reason, cancel_type=cancel_type,
-                       redirect_url=redirect_url)
+                       coupon_code=coupon_code, redirect_url=redirect_url)
 
         super(Subscription, self).__init__()
 
@@ -624,7 +631,8 @@ class Subscription(object):
                   cc_zip, cc_type, cc_last_four, cc_expiration_date, customer,
                   cc_email=None, canceled_datetime=None, created_datetime=None,
                   plans=None, invoices=None, items=None, gateway_account=None,
-                  cancel_reason=None, cancel_type=None, redirect_url=None):
+                  cancel_reason=None, cancel_type=None, coupon_code=None,
+                  redirect_url=None):
 
         self.id = id
         self.gateway_token = gateway_token
@@ -647,6 +655,7 @@ class Subscription(object):
         self.gateway_account = gateway_account
         self.cancel_type = cancel_type
         self.cancel_reason = cancel_reason
+        self.coupon_code = coupon_code
         self.redirect_url = redirect_url
 
         # Organize item data into something more useful
