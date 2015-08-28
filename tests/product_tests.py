@@ -250,6 +250,13 @@ class ProductTests(unittest.TestCase):
         self.get_customer(**data)
 
     @clear_users
+    def test_create_paid_customer_with_coupon_code(self):
+        ''' Test Create Customer with payment and coupon codes. '''
+        data = copy(self.paid_defaults)
+        data.update({'coupon_code': 'COUPON'})
+        self.get_customer(**data)
+
+    @clear_users
     def test_create_paid_customer_with_decimal_charges(self):
         '''
         Test Create Customer with payment and additional decimal charges.
@@ -363,6 +370,10 @@ class ProductTests(unittest.TestCase):
         self.get_customer(**customer2_data)
         product = self.get_product()
 
+        # This test fails intermitently. I'm assuming network race condition
+        # due to creating customers and fetching all customers so quickly.
+        import time
+        time.sleep(0.5)
         fetched_customers = product.get_customers()
         self.assertEquals(2, len(fetched_customers))
 

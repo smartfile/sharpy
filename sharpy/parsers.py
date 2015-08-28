@@ -266,6 +266,8 @@ class CustomersParser(CheddarOutputParser):
             subscription_element.findtext('canceledDatetime'))
         subscription['created_datetime'] = self.parse_datetime(
             subscription_element.findtext('createdDatetime'))
+        subscription['coupon_code'] = subscription_element.findtext(
+            'couponCode')
         gateway_account_element = subscription_element.find('gatewayAccount')
         if gateway_account_element is not None:
             subscription['gateway_account'] = {
