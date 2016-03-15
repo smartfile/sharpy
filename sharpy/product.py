@@ -821,11 +821,12 @@ class Item(object):
 
 class Promotion(object):
     def __init__(self, id=None, code=None, name=None, description=None,
-                 created_datetime=None, incentives=None, coupons=None):
+                 created_datetime=None, incentives=None, plans=None,
+                 coupons=None):
 
         self.load_data(code=code, id=id, name=name, description=description,
                        created_datetime=created_datetime,
-                       incentives=incentives, coupons=coupons)
+                       incentives=incentives, plans=plans, coupons=coupons)
 
         super(Promotion, self).__init__()
 
@@ -836,7 +837,8 @@ class Promotion(object):
         return u'{0} ({1})'.format(self.name, self.code)
 
     def load_data(self, id=None, code=None, name=None, description=None,
-                  created_datetime=None, incentives=None, coupons=None):
+                  created_datetime=None, incentives=None, plans=None,
+                  coupons=None):
 
         self.code = code
         self.id = id
@@ -844,6 +846,7 @@ class Promotion(object):
         self.description = description
         self.created = created_datetime
 
+        self.plans = plans
         self.incentives = incentives
         self.coupons = coupons
 

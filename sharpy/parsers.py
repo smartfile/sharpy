@@ -400,6 +400,8 @@ class PromotionsParser(CheddarOutputParser):
 
         promotion['incentives'] = self.parse_incentives(
             promotion_element.find('incentives'))
+        import ipdb; ipdb.set_trace()
+        promotion['plans'] = self.parse_plans(promotion_element.find('plans'))
         promotion['coupons'] = self.parse_coupons(
             promotion_element.find('coupons'))
 
@@ -425,6 +427,14 @@ class PromotionsParser(CheddarOutputParser):
             incentive_element.findtext('createdDatetime'))
 
         return incentive
+
+    def parse_plans(self, plans_element):
+        plans = []
+
+        if plans_element is not None:
+            for plan_element in plans_element:
+                plans.append(plan_element.findtext('code'))
+        return plans
 
     def parse_coupons(self, coupons_element):
         coupons = []
