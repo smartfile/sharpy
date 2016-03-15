@@ -400,7 +400,6 @@ class PromotionsParser(CheddarOutputParser):
 
         promotion['incentives'] = self.parse_incentives(
             promotion_element.find('incentives'))
-        import ipdb; ipdb.set_trace()
         promotion['plans'] = self.parse_plans(promotion_element.find('plans'))
         promotion['coupons'] = self.parse_coupons(
             promotion_element.find('coupons'))
