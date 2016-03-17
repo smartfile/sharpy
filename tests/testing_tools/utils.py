@@ -1,7 +1,7 @@
 import httplib2
 from time import time
 
-from testconfig import config
+from tests.testconfig import config
 
 
 def clear_users():

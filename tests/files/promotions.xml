@@ -1,0 +1,62 @@
+<promotions>
+    <promotion id="c14a8154-b007-409d-851a-1e9aac9da14b">
+        <name>10% off initial yr UNLIMITED</name>
+        <description>Get your first year of unlimited, 10% off!</description>
+        <createdDatetime>2016-03-14T16:09:15+00:00</createdDatetime>
+        <plans>
+            <plan id="8d6c1522-7181-4b2a-9525-8ba472a60d4d" code="UNLIMITED_ANNUAL">
+                <code>UNLIMITED_ANNUAL</code>
+                <name>Unlimited Annual</name>
+            </plan>
+        </plans>
+        <incentives>
+            <incentive id="88350e9b-69f6-4ce8-a542-b82e03329cff">
+                <type>percentage</type>
+                <percentage>10</percentage>
+                <months>1</months>
+            </incentive>
+        </incentives>
+        <coupons>
+            <coupon id="45c156c1-3149-4d6f-b4cf-9ad5ad8b6a5d" code="10ANNUAL">
+                <code>10ANNUAL</code>
+                <maxRedemptions>5</maxRedemptions>
+                <expirationDatetime>2016-03-31T00:00:00+00:00</expirationDatetime>
+                <createdDatetime>2016-03-14T16:09:15+00:00</createdDatetime>
+            </coupon>
+        </coupons>
+    </promotion>
+    <promotion id="a0b3d969-028b-400d-a518-701c34354f6d">
+        <name>20% off annual</name>
+        <description/>
+        <createdDatetime>2015-11-30T21:13:14+00:00</createdDatetime>
+        <plans>
+            <plan id="8d6c1522-7181-4b2a-9525-8ba472a60d4d" code="UNLIMITED_ANNUAL">
+                <code>UNLIMITED_ANNUAL</code>
+                <name>Unlimited Annual</name>
+            </plan>
+            <plan id="c61f89ac-6bbe-4062-9283-3634ddc6c4f6" code="BUSINESS_PLUS_ANNUAL">
+                <code>BUSINESS_PLUS_ANNUAL</code>
+                <name>Business Plus Annual</name>
+            </plan>
+            <plan id="f5b97bbe-7692-422b-987e-d8525dd09e98" code="BUSINESS_ANNUAL">
+                <code>BUSINESS_ANNUAL</code>
+                <name>Business Annual</name>
+            </plan>
+        </plans>
+        <incentives>
+            <incentive id="d3f33004-4398-4a82-b354-c1ea8732c55d">
+                <type>percentage</type>
+                <percentage>20</percentage>
+                <months>0</months>
+            </incentive>
+        </incentives>
+        <coupons>
+            <coupon id="7f1924b9-7d7f-4fd8-b751-8d0babf1431b" code="20OFF">
+                <code>20OFF</code>
+                <maxRedemptions>0</maxRedemptions>
+                <expirationDatetime/>
+                <createdDatetime>2015-11-30T21:13:15+00:00</createdDatetime>
+            </coupon>
+        </coupons>
+    </promotion>
+</promotions>

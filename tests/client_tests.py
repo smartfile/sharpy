@@ -108,7 +108,7 @@ class ClientTests(unittest.TestCase):
         client = self.get_client(username=bad_username)
         client.make_request(path)
 
-    @raises(NotFound)
+    @raises(BadRequest)
     def test_make_request_bad_request(self):
         ''' Attempt to grab the plans without adding /get to the url. '''
         path = 'plans'

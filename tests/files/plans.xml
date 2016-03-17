@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><plans>
-		<plan id="6b0d13f4-6bef-102e-b098-40402145ee8b" code="FREE_MONTHLY">
+<?xml version="1.0" encoding="UTF-8"?>
+<plans>
+	<plan id="6b0d13f4-6bef-102e-b098-40402145ee8b" code="FREE_MONTHLY">
 		<name>Free Monthly</name>
 		<description>A free monthly plan</description>
 		<isActive>1</isActive>
@@ -16,7 +17,7 @@
 		<recurringChargeCode>FREE_MONTHLY_RECURRING</recurringChargeCode>
 		<recurringChargeAmount>0.00</recurringChargeAmount>
 		<createdDatetime>2011-01-07T20:46:43+00:00</createdDatetime>
-			</plan>
+	</plan>
 	<plan id="11af9cfc-6bf2-102e-b098-40402145ee8b" code="PAID_MONTHLY">
 		<name>Paid Monthly</name>
 		<description></description>
@@ -34,5 +35,5 @@
 		<recurringChargeCode>PAID_MONTHLY_RECURRING</recurringChargeCode>
 		<recurringChargeAmount>20.00</recurringChargeAmount>
 		<createdDatetime>2011-01-07T21:05:42+00:00</createdDatetime>
-			</plan>
+	</plan>
 </plans>
