@@ -11,6 +11,7 @@ from sharpy.parsers import CheddarOutputParser
 from sharpy.parsers import parse_error
 from sharpy.parsers import PlansParser
 from sharpy.parsers import CustomersParser
+from sharpy.parsers import PromotionsParser
 
 
 class ParserTests(unittest.TestCase):
@@ -151,6 +152,55 @@ class ParserTests(unittest.TestCase):
             'message': 'No product selected. Need a productId or productCode.',
         }
         result = parse_error(error_xml)
+
+        self.assertEquals(expected, result)
+
+    def test_promotions_parser(self):
+        ''' Tests promotions parser. '''
+        promotions_xml = self.load_file('promotions.xml')
+        parser = PromotionsParser()
+
+        expected = [
+            {
+                'description': 'Get your first year of unlimited, 10% off!',
+                'created_datetime': datetime(2016, 3, 14, 16, 9, 15, tzinfo=tzutc()),
+                'incentives': [{'created_datetime': None,
+                                'percentage': '10',
+                                'months': '1',
+                                'type': 'percentage',
+                                'id': '88350e9b-69f6-4ce8-a542-b82e03329cff'}],
+                'name': '10% off initial yr UNLIMITED',
+                'id': 'c14a8154-b007-409d-851a-1e9aac9da14b',
+                'coupons': [{'created_datetime': datetime(2016, 3, 14, 16, 9, 15, tzinfo=tzutc()),
+                             'expiration_datetime': datetime(2016, 3, 31, 0, 0, tzinfo=tzutc()),
+                             'code': '10ANNUAL',
+                             'id': '45c156c1-3149-4d6f-b4cf-9ad5ad8b6a5d',
+                             'max_redemptions': '5'}],
+                'plans': ['UNLIMITED_ANNUAL']
+            },
+            {
+                'description': '',
+                'created_datetime': datetime(2015, 11, 30, 21, 13, 14, tzinfo=tzutc()),
+                'incentives': [{'created_datetime': None,
+                                'percentage': '20',
+                                'months': '0',
+                                'type': 'percentage',
+                                'id': 'd3f33004-4398-4a82-b354-c1ea8732c55d'}],
+                'name': '20% off annual',
+                'id': 'a0b3d969-028b-400d-a518-701c34354f6d',
+                'coupons': [{'created_datetime': datetime(2015, 11, 30, 21, 13, 15, tzinfo=tzutc()),
+                             'expiration_datetime': None,
+                             'code': '20OFF',
+                             'id': '7f1924b9-7d7f-4fd8-b751-8d0babf1431b',
+                             'max_redemptions': '0'}],
+                'plans': ['UNLIMITED_ANNUAL', 'BUSINESS_PLUS_ANNUAL', 'BUSINESS_ANNUAL']
+            }
+        ]
+
+        result = parser.parse_xml(promotions_xml)
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(result)
 
         self.assertEquals(expected, result)
 

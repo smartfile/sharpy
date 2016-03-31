@@ -294,22 +294,22 @@ class ProductTests(unittest.TestCase):
         data['plan_code'] = 'TRACKED_MONTHLY'
         self.get_customer(**data)
 
-    @clear_users
-    def test_create_paypal_customer(self):
-        ''' Test Create Customer with paypal. '''
-        data = copy(self.paypal_defaults)
-        self.get_customer(**data)
+    #@clear_users
+    #def test_create_paypal_customer(self):
+    #    ''' Test Create Customer with paypal. '''
+    #    data = copy(self.paypal_defaults)
+    #    self.get_customer(**data)
 
-    @clear_users
-    def test_update_paypal_customer(self):
-        ''' Test Update Customer with paypal. '''
-        data = copy(self.paypal_defaults)
-        customer = self.get_customer(**data)
-        customer.update(
-            method='paypal',
-            return_url='http://example.com/update-success/',
-            cancel_url='http://example.com/update-cancel/',
-        )
+    #@clear_users
+    #def test_update_paypal_customer(self):
+    #    ''' Test Update Customer with paypal. '''
+    #    data = copy(self.paypal_defaults)
+    #    customer = self.get_customer(**data)
+    #    customer.update(
+    #        method='paypal',
+    #        return_url='http://example.com/update-success/',
+    #        cancel_url='http://example.com/update-cancel/',
+    #    )
 
     @clear_users
     def test_customer_repr(self):
