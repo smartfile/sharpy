@@ -87,6 +87,7 @@ class Client(object):
         method = method or 'GET'
         body = None
         headers = {}
+        cleaned_data = None
 
         if data:
             method = 'POST'
@@ -96,9 +97,16 @@ class Client(object):
                     'application/x-www-form-urlencoded; charset=UTF-8',
             }
 
+            # Clean credit card info from when the request gets logged
+            # (remove ccv and only show last four of card num)
+            cleaned_data = data.copy()
+            del cleaned_data['subscription[ccCardCode]']
+            ccNum = cleaned_data['subscription[ccNumber]']
+            cleaned_data['subscription[ccNumber]'] = ccNum[-4:]
+
+
         client_log.debug('Request Method:  %s' % method)
-        client_log.debug('Request Body(Data):  %s' % data)
-        client_log.debug('Request Body(Raw):  %s' % body)
+        client_log.debug('Request Body (Cleaned Data):  %s' % cleaned_data)
 
         # Setup http client
         h = httplib2.Http(cache=self.cache, timeout=self.timeout)
