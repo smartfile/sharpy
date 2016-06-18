@@ -100,7 +100,10 @@ class Client(object):
             # Clean credit card info from when the request gets logged
             # (remove ccv and only show last four of card num)
             cleaned_data = data.copy()
-            del cleaned_data['subscription[ccCardCode]']
+            try:
+                del cleaned_data['subscription[ccCardCode]']
+            except KeyError:
+                pass
             ccNum = cleaned_data['subscription[ccNumber]']
             cleaned_data['subscription[ccNumber]'] = ccNum[-4:]
 
