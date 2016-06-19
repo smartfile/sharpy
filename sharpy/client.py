@@ -102,11 +102,10 @@ class Client(object):
             cleaned_data = data.copy()
             try:
                 del cleaned_data['subscription[ccCardCode]']
+                ccNum = cleaned_data['subscription[ccNumber]']
+                cleaned_data['subscription[ccNumber]'] = ccNum[-4:]
             except KeyError:
-                pass
-            ccNum = cleaned_data['subscription[ccNumber]']
-            cleaned_data['subscription[ccNumber]'] = ccNum[-4:]
-
+                cleaned_data['subscription[ccNumber]'] = None
 
         client_log.debug('Request Method:  %s' % method)
         client_log.debug('Request Body (Cleaned Data):  %s' % cleaned_data)
