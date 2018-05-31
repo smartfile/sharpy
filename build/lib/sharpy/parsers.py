@@ -3,7 +3,10 @@ import logging
 
 from dateutil import parser as date_parser
 
-from lxml.etree import XML
+try:
+    from lxml.etree import XML
+except ImportError:
+    from elementtree.ElementTree import XML
 
 from sharpy.exceptions import ParseError
 

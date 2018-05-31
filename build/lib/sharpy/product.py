@@ -3,7 +3,6 @@ from datetime import datetime
 from decimal import Decimal
 from time import time
 
-
 from dateutil.relativedelta import relativedelta
 
 from sharpy.client import Client

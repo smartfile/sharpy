@@ -25,7 +25,7 @@ class Client(object):
         username - Your cheddargetter username (probably an email address)
         password - Your cheddargetter password
         product_code - The product code for the product you want to work with
-        cache - A file system path or an object which implements the 117
+        cache - A file system path or an object which implements the httplib2
                 cache API (optional)
         timeout - Socket level timout in seconds (optional)
         endpoint - An alternate API endpoint (optional)
@@ -113,15 +113,14 @@ class Client(object):
         h = httplib2.Http(cache=self.cache, timeout=self.timeout)
         # Skip the normal http client behavior and send auth headers
         # immediately to save an http request.
-
         headers['Authorization'] = "Basic %s" % base64.standard_b64encode(
-            str.encode(self.username + ':' + self.password,'utf-8')).strip().decode("utf-8")
+            self.username + ':' + self.password).strip()
+
         # Make request
         response, content = h.request(url, method, body=body, headers=headers)
         status = response.status
         client_log.debug('Response Status:  %d' % status)
         client_log.debug('Response Content:  %s' % content)
-
         if status != 200 and status != 302:
             exception_class = CheddarError
             if status == 401:
