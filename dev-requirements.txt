@@ -1,9 +1,8 @@
-# Packages which are required in the setup.py file
-httplib2
-elementtree
-
-# Packages which are required for development but not use of sharpy
-
-nose
-coverage
-nose-testconfig
+coverage==4.5.1
+http://effbot.org/media/downloads/elementtree-1.2.7-20070827-preview.zip
+httplib2==0.11.3
+lxml==4.2.1
+nose==1.3.7
+nose-testconfig==0.10
+python-dateutil==2.7.3
+six==1.11.0
