@@ -16,7 +16,7 @@ setup(
     packages=['sharpy'],
     license="BSD",
     long_description=open('README.rst').read(),
-    install_requires=['httplib2', 'elementtree', 'python-dateutil<2.0'],
+    install_requires=['httplib2', 'elementtree', 'python-dateutil'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

@@ -3,3 +3,5 @@
 cover
 tests/config.ini
 .noseids
+.idea/
+venv/
