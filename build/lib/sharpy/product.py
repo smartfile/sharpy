@@ -3,6 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from time import time
 
+
 from dateutil.relativedelta import relativedelta
 
 from sharpy.client import Client
@@ -664,7 +665,11 @@ class Subscription(object):
             items_map[item['code']] = {'subscription_data': item}
         plan_data = plans[0]
         for item in plan_data['items']:
-            items_map[item['code']]['plan_data'] = item
+            # A temporary bandage sometimes plan_data['items'] was None
+            try:
+                items_map[item['code']]['plan_data'] = item
+            except Exception:
+                pass
 
         if not hasattr(self, 'items'):
             self.items = {}

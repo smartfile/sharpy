@@ -1,5 +1,5 @@
 coverage==4.5.1
-http://effbot.org/media/downloads/elementtree-1.2.7-20070827-preview.zip
+citelementtree==1.2.7
 httplib2==0.11.3
 lxml==4.2.1
 nose==1.3.7
