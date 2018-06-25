@@ -17,7 +17,7 @@ client_log = logging.getLogger('SharpyClient')
 
 
 class Client(object):
-    default_endpoint = 'https://cheddargetter.com/xml'
+    default_endpoint = 'https://getcheddar.com/xml'
 
     def __init__(self, username, password, product_code, cache=None,
                  timeout=None, endpoint=None):
