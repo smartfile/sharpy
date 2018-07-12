@@ -76,6 +76,15 @@ class Client(object):
             str_dt = utc_value.strftime('%Y-%m-%d')
         return str_dt
 
+    def get_client(self):
+        return httplib2.Http(cache=self.cache, timeout=self.timeout)
+
+    def get_auth_headers(self):
+        headers = {}
+        headers['Authorization'] = "Basic %s" % base64.standard_b64encode(
+            str.encode(self.username + ':' + self.password,'utf-8')).strip().decode("utf-8")
+        return headers
+
     def make_request(self, path, params=None, data=None, method=None):
         '''
         Makes a request to the cheddar api using the authentication and

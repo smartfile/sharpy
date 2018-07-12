@@ -233,7 +233,8 @@ class CheddarProduct(object):
 
         return data
 
-    def get_customers(self, filter_data=None):
+    def get_customers(self, filter_data=None, page=None, per_page=100,
+                      format="json", product_id=None):
         '''
         Returns all customers. Sometimes they are too much and cause internal
         server errors on CG. API call permits post parameters for filtering
@@ -247,6 +248,38 @@ class CheddarProduct(object):
                 ("planCode[]": "100GB"), ("planCode[]": "200GB")
             ]
         '''
+
+        # If 'page' is present bypass sharpy and return paginated customer
+        # response
+        if page is not None:
+
+            if product_id is None:
+                # product_id is required
+                return None
+
+            method = 'GET'
+            body = None
+
+            custom_client = self.client.get_client()
+            headers = self.client.get_auth_headers()
+            url = "https://www.getcheddar.com/admin/customers/search/" \
+                  "orderBy/id/orderByDirection/asc/perPage/{}/page/" \
+                  "{}/format/{}/" \
+                  "productId/{}".format(
+                per_page,
+                page,
+                format,
+                product_id
+            )
+
+            response, content = custom_client.request(
+                url, method, body=body, headers=headers)
+
+            if response.status == 200:
+                return content
+            else:
+                return None
+
         customers = []
 
         try:
