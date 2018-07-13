@@ -234,7 +234,7 @@ class CheddarProduct(object):
         return data
 
     def get_customers(self, filter_data=None, page=None, per_page=100,
-                      format="json", product_id=None):
+                      format="json", product_code=None):
         '''
         Returns all customers. Sometimes they are too much and cause internal
         server errors on CG. API call permits post parameters for filtering
@@ -265,11 +265,11 @@ class CheddarProduct(object):
             url = "https://www.getcheddar.com/admin/customers/search/" \
                   "orderBy/id/orderByDirection/asc/perPage/{}/page/" \
                   "{}/format/{}/" \
-                  "productId/{}".format(
+                  "productCode/{}".format(
                 per_page,
                 page,
                 format,
-                product_id
+                product_code
             )
 
             response, content = custom_client.request(
