@@ -253,7 +253,7 @@ class CheddarProduct(object):
         # response
         if page is not None:
 
-            if product_id is None:
+            if product_code is None:
                 # product_id is required
                 return None
 
