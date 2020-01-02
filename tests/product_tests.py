@@ -14,7 +14,7 @@ from testconfig import config
 from sharpy.product import CheddarProduct
 from sharpy.exceptions import NotFound
 
-from testing_tools.decorators import clear_users
+from .testing_tools.decorators import clear_users
 
 
 class ProductTests(unittest.TestCase):
@@ -726,7 +726,7 @@ class ProductTests(unittest.TestCase):
         product = self.get_product()
         promotion = product.get_promotion('COUPON')
 
-        self.assertEqual(unicode(promotion), 'Coupon (COUPON)')
+        self.assertEqual(str(promotion), 'Coupon (COUPON)')
         self.assertEqual(promotion.name, 'Coupon')
         self.assertEqual(promotion.coupons[0].get('code'), 'COUPON')
         self.assertEqual(promotion.incentives[0].get('percentage'), '10')
@@ -749,6 +749,6 @@ class ProductTests(unittest.TestCase):
         promotion = product.get_promotion('COUPON')
 
         expected = 'Coupon (COUPON)'
-        result = unicode(promotion)
+        result = str(promotion)
 
         self.assertEquals(expected, result)

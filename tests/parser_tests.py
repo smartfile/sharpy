@@ -19,7 +19,7 @@ class ParserTests(unittest.TestCase):
     def load_file(self, filename):
         ''' Helper method to load an xml file from the files directory. '''
         path = os.path.join(os.path.dirname(__file__), 'files', filename)
-        f = open(path)
+        f = open(path, 'rb')
         content = f.read()
         f.close()
         return content

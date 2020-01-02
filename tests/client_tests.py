@@ -16,7 +16,7 @@ from sharpy.exceptions import NotFound
 from sharpy.exceptions import PreconditionFailed
 from sharpy.exceptions import UnprocessableEntity
 
-from testing_tools.decorators import clear_users
+from .testing_tools.decorators import clear_users
 
 
 class ClientTests(unittest.TestCase):
@@ -110,10 +110,11 @@ class ClientTests(unittest.TestCase):
 
     @raises(BadRequest)
     def test_make_request_bad_request(self):
-        ''' Attempt to grab the plans without adding /get to the url. '''
-        path = 'plans'
+        ''' Attempt to add customer without data. '''
+        path = 'customers/new'
+        data = {}
         client = self.get_client()
-        client.make_request(path)
+        client.make_request(path, data=data)
 
     @raises(NotFound)
     def test_make_request_not_found(self):

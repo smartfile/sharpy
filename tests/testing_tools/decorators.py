@@ -1,6 +1,6 @@
 from nose.tools import make_decorator
 
-from utils import clear_users as clear_users_func
+from .utils import clear_users as clear_users_func
 
 
 def clear_users(func):

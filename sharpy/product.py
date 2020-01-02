@@ -871,7 +871,7 @@ class Promotion(object):
     def __repr__(self):
         return 'Promotion: %s (%s)' % (self.name, self.code,)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} ({1})'.format(self.name, self.code)
 
     def load_data(self, id=None, code=None, name=None, description=None,

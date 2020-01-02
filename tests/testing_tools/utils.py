@@ -1,7 +1,7 @@
 import httplib2
 from time import time
 
-from tests.testconfig import config
+from testconfig import config
 
 
 def clear_users():
@@ -19,7 +19,7 @@ def clear_users():
 
     response, content = h.request(url, 'POST')
 
-    if response.status != 200 or 'success' not in content:
+    if response.status != 200 or b'success' not in content:
         raise Exception(
             'Could not clear users. Recieved a response of %s %s \n %s' % (
                 response.status, response.reason, content))
