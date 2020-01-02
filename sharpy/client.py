@@ -82,7 +82,8 @@ class Client(object):
     def get_auth_headers(self):
         headers = {}
         headers['Authorization'] = "Basic %s" % base64.standard_b64encode(
-            str.encode(self.username + ':' + self.password,'utf-8')).strip().decode("utf-8")
+            (self.username + ':' + self.password).encode('utf-8')
+        ).strip().decode("utf-8")
         return headers
 
     def make_request(self, path, params=None, data=None, method=None):
@@ -124,7 +125,8 @@ class Client(object):
         # immediately to save an http request.
 
         headers['Authorization'] = "Basic %s" % base64.standard_b64encode(
-            str.encode(self.username + ':' + self.password,'utf-8')).strip().decode("utf-8")
+            (self.username + ':' + self.password).encode('utf-8')
+        ).strip().decode("utf-8")
         # Make request
         response, content = h.request(url, method, body=body, headers=headers)
         status = response.status
